@@ -1,0 +1,11 @@
+{
+	"info": {
+		"_postman_id": "c745b035-71fc-43fc-85ad-c91485b1b423",
+		"name": "Client Service",
+		"description": "Documentation for client service. Please utilize collection variables to make your life easier.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29903624",
+		"_collection_link": "https://lunar-station-394524.postman.co/workspace/APKS~5aae23c6-6220-492b-80df-d5581b595946/collection/29903624-c745b035-71fc-43fc-85ad-c91485b1b423?action=share&source=collection_link&creator=29903624"
+	},
+	"item": []
+}
