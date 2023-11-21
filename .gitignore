@@ -1,1 +1,35 @@
-.idea
+# Environment variables
+.env
+
+# Compiled output
+/simtix-client/dist
+/simtix-client/node_modules
+
+# Logs
+/simtix-client/logs
+/simtix-client/*.log
+/simtix-client/npm-debug.log*
+/simtix-client/pnpm-debug.log*
+/simtix-client/yarn-debug.log*
+/simtix-client/yarn-error.log*
+/simtix-client/lerna-debug.log*
+
+# Tests
+/simtix-client/coverage
+/simtix-client/.nyc_output
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
