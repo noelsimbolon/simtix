@@ -1,0 +1,23 @@
+version: '3'
+services:
+  simtix-client-db:
+    image: postgres
+    env_file:
+      - .env
+    hostname: ${PSQL_HOST}
+    environment:
+      POSTGRES_DB: ${PSQL_DBNAME}
+      POSTGRES_USER: ${PSQL_USERNAME}
+      POSTGRES_PASSWORD: ${PSQL_PASSWORD}
+    ports:
+      - '8080:5432'
+    volumes:
+      - simtix_client_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PSQL_USERNAME} -d ${PSQL_DBNAME} -h ${PSQL_HOST} -p 5432"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  simtix_client_db:
