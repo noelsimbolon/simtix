@@ -1,0 +1,35 @@
+services:
+
+#  simtix-client:
+#    build:
+#      context: ./simtix-client
+#      dockerfile: Dockerfile
+#    networks:
+#      - simtix-microservices
+
+  simtix-ticketing:
+    build:
+      context: ./simtix-ticketing
+      dockerfile: Dockerfile
+    networks:
+      - simtix-microservices
+
+  simtix-ticketing-db:
+    image: postgres:16.1-alpine
+    env_file:
+      - .env
+    networks:
+      - simtix-microservices
+
+  simtix-ticketing-cache:
+    image: redis:7.2.3-alpine
+    networks:
+      - simtix-microservices
+
+  simtix-ticketing-queue:
+    image: redis:7.2.3-alpine
+    networks:
+      - simtix-microservices
+
+networks:
+  simtix-microservices:
