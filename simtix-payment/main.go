@@ -2,12 +2,12 @@ package main
 
 import (
 	"go.uber.org/fx"
-	"main/domain"
-	"main/handlers"
-	"main/lib"
-	"main/migrations"
-	"main/routes"
-	"main/server"
+	"simtix/domain"
+	"simtix/handlers"
+	"simtix/lib"
+	"simtix/migrations"
+	"simtix/routes"
+	"simtix/server"
 )
 
 func startApp(server *server.Server, database *lib.Database) {
