@@ -3,9 +3,9 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"log"
-	"main/handlers"
-	"main/models"
 	"net/http"
+	"simtix/handlers"
+	"simtix/models"
 )
 
 type InvoiceRoutes struct {

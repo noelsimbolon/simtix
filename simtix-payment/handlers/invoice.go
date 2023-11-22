@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"github.com/gin-gonic/gin"
-	"main/domain"
-	"main/models/dto"
 	"net/http"
+	"simtix/domain/invoice"
+	"simtix/models/dto"
 )
 
 type InvoiceHandler interface {
@@ -12,7 +12,7 @@ type InvoiceHandler interface {
 }
 
 type InvoiceHandlerImpl struct {
-	service domain.InvoiceService
+	service invoice.InvoiceService
 }
 
 func (h *InvoiceHandlerImpl) PostInvoice(c *gin.Context) {
@@ -32,7 +32,7 @@ func (h *InvoiceHandlerImpl) PostInvoice(c *gin.Context) {
 	c.JSON(http.StatusCreated, invoice)
 }
 
-func NewInvoiceHandlerImpl(service domain.InvoiceService) *InvoiceHandlerImpl {
+func NewInvoiceHandlerImpl(service invoice.InvoiceService) *InvoiceHandlerImpl {
 	return &InvoiceHandlerImpl{
 		service: service,
 	}
