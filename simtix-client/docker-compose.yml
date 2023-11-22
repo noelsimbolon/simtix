@@ -19,5 +19,15 @@ services:
       timeout: 3s
       retries: 5
 
+  simtix-client:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - '8000:8000'
+    depends_on:
+      simtix-client-db:
+        condition: service_healthy
+
 volumes:
   simtix_client_db:
