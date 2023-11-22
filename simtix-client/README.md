@@ -12,7 +12,7 @@ Client service.
 
 #### Generate Migration
 ```bash
-npm run migration:run -d src/migrations/{migration-name}
+npm run migration:generate -d src/migrations/{migration-name}
 ```
 
 #### Run Migration
