@@ -2,10 +2,10 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"simtix/handlers"
 	"simtix/models"
+	"simtix/utils/logger"
 )
 
 type InvoiceRoutes struct {
@@ -16,7 +16,7 @@ type InvoiceRoutes struct {
 }
 
 func (s InvoiceRoutes) Setup(engine *gin.RouterGroup) {
-	log.Print("Setting up routes")
+	logger.Log.Info("Setting up routes")
 	invoiceRoutes := engine.Group("invoice")
 	invoiceRoutes.GET(
 		"/", func(context *gin.Context) {

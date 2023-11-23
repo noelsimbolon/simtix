@@ -7,13 +7,13 @@ import (
 	"github.com/joho/godotenv"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"simtix/lib"
+	"simtix/middlewares"
 	"simtix/routes"
-	"strconv"
+	"simtix/utils/logger"
 	"syscall"
 	"time"
 )
@@ -27,7 +27,10 @@ type Server struct {
 }
 
 func NewServer(routes *routes.Routes, config *lib.Config) *Server {
-	engine := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
+	engine := gin.New()
+	engine.Use(gin.Recovery())
+	engine.Use(middlewares.LoggingMiddleware())
 	routes.Setup(engine.Group("/api"))
 	return &Server{
 		engine: engine,
@@ -48,7 +51,7 @@ func (s *Server) Run() {
 	ctx, cancel := context.WithCancel(context.Background())
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("Error loading .env file")
+		logger.Log.Error("Error loading .env file")
 	}
 
 	go func() {
@@ -60,9 +63,7 @@ func (s *Server) Run() {
 		cancel()
 	}()
 
-	port := getPort()
-
-	address := fmt.Sprintf(":%d", port)
+	address := fmt.Sprintf(":%d", s.port)
 
 	server := &http.Server{
 		Addr:    address,
@@ -81,30 +82,17 @@ func (s *Server) Run() {
 			<-groupCtx.Done()
 			ctx, cancelTo := context.WithTimeout(context.Background(), time.Second*30)
 			defer cancelTo()
-			log.Print(`Shutting down payment service`)
+			logger.Log.Info("Shutting down server")
 			return server.Shutdown(ctx)
 		},
 	)
 
 	if err := group.Wait(); err != nil {
-		log.Printf(`Exiting due to %v`, err)
+		logger.Log.Error("Failed to shutdown server")
 	}
 }
 
 func (s *Server) startServer(server *http.Server) error {
-	log.Printf("Starting server on port %d", s.port)
+	logger.Log.Info(fmt.Sprintf("Server started on port %d", s.port))
 	return server.ListenAndServe()
-}
-
-func getPort() int {
-	val, ok := os.LookupEnv("PORT")
-	if !ok {
-		return 8080
-	}
-	port, err := strconv.Atoi(val)
-	if err != nil {
-		log.Printf("Error converting PORT to integer: %v", err)
-		return 8080
-	}
-	return port
 }
