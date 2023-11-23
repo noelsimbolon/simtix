@@ -2,23 +2,26 @@ package worker
 
 import (
 	"github.com/hibiken/asynq"
+	"simtix/lib"
 )
 
-type workerClient struct {
+//var Module = fx.Module("workerClient", fx.Options(fx.Provide(NewWorkerClient)))
+
+type WorkerClient struct {
 	client *asynq.Client
 }
 
-func (w *workerClient) Close() error {
+func (w *WorkerClient) Close() error {
 	return w.client.Close()
 }
 
-func (w *workerClient) Enqueue(t *asynq.Task, opts ...asynq.Option) (*asynq.TaskInfo, error) {
+func (w *WorkerClient) Enqueue(t *asynq.Task, opts ...asynq.Option) (*asynq.TaskInfo, error) {
 	return w.client.Enqueue(t, opts...)
 }
 
-func NewWorkerClient(redisAddr string) workerClient {
-	client := asynq.NewClient(asynq.RedisClientOpt{Addr: redisAddr})
-	return workerClient{
+func NewWorkerClient(config *lib.Config) *WorkerClient {
+	client := asynq.NewClient(asynq.RedisClientOpt{Addr: config.RedisAddress})
+	return &WorkerClient{
 		client: client,
 	}
 }
