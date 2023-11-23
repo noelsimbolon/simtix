@@ -1,7 +1,10 @@
 package main
 
 import (
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"go.uber.org/fx"
+	"os"
 	"simtix/domain"
 	"simtix/handlers"
 	"simtix/lib"
@@ -17,6 +20,7 @@ func startApp(server *server.Server, database *lib.Database) {
 }
 
 func main() {
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	app := fx.New(
 		server.Module,
 		lib.Module,
@@ -25,6 +29,7 @@ func main() {
 		routes.Module,
 		worker.Module,
 		fx.Invoke(startApp),
+		//fx.NopLogger,
 	)
 	app.Run()
 }
