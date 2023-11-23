@@ -4,8 +4,8 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/pkg/errors"
-	"log"
 	"os"
+	"simtix/utils/logger"
 	"time"
 )
 
@@ -15,6 +15,7 @@ type Config struct {
 	ServiceName        string        `envconfig:"SERVICE_NAME" required:"true"`
 	ServicePort        int           `envconfig:"SERVICE_PORT" default:"8000" required:"true"`
 	GracefullyDuration time.Duration `envconfig:"GRACEFULLY_DURATION" default:"5s"`
+	RedisAddress       string        `envconfig:"REDIS_ADDRESS"`
 
 	LogLevel         string `envconfig:"LOG_LEVEL" default:"INFO"`
 	DatabaseHost     string `envconfig:"DB_HOST" required:"true"`
@@ -33,7 +34,7 @@ func NewConfig() (*Config, error) {
 		filename = ".env"
 	}
 
-	log.Printf("Loading env from file: %s", filename)
+	logger.Log.Info("Loading env from file: %s", filename)
 
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
 		if err := envconfig.Process("", &config); err != nil {
