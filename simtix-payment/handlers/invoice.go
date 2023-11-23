@@ -25,7 +25,7 @@ func (h *InvoiceHandlerImpl) PostInvoice(c *gin.Context) {
 
 	invoice, customError := h.service.CreateInvoice(invoiceDto)
 	if customError != nil {
-		c.AbortWithStatusJSON(customError.StatusCode, gin.H{"error": customError.Err})
+		c.AbortWithStatusJSON(customError.StatusCode, gin.H{"error": customError.Err.Error()})
 		return
 	}
 
