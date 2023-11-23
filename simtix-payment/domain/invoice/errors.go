@@ -30,3 +30,8 @@ var ErrBookingExist = &utils.BaseError{
 	StatusCode: http.StatusBadRequest,
 	Err:        errors.New("Invoice for that booking has already existed"),
 }
+
+var ErrEnqueuePaymentTaskFail = &utils.BaseError{
+	StatusCode: http.StatusInternalServerError,
+	Err:        errors.New("Failed to enqueue payment task"),
+}
