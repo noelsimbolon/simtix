@@ -2,6 +2,7 @@ package invoice
 
 import (
 	"fmt"
+	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 	"simtix/lib"
@@ -9,10 +10,12 @@ import (
 	"simtix/models/dao"
 	"simtix/models/dto"
 	"simtix/utils"
+	"simtix/worker"
+	"simtix/worker/tasks"
 )
 
 type InvoiceService interface {
-	CreateInvoice(invoiceDto dto.CreateInvoiceDto) (*models.Invoice, *utils.BaseError)
+	CreateInvoice(invoiceDto dto.CreateInvoiceDto) (*dao.CreateInvoiceDao, *utils.BaseError)
 	UpdateInvoiceStatus(invoiceID string, status models.InvoiceStatus) (*models.Invoice, *utils.BaseError)
 	GetInvoiceByID(invoiceID string) (
 		*models.Invoice,
@@ -21,14 +24,18 @@ type InvoiceService interface {
 }
 
 type InvoiceServiceImpl struct {
-	config     *lib.Config
-	repository *gorm.DB
+	config       *lib.Config
+	repository   *gorm.DB
+	workerClient *worker.WorkerClient
 }
 
-func NewInvoiceService(database *lib.Database, config *lib.Config) *InvoiceServiceImpl {
+func NewInvoiceService(
+	database *lib.Database, config *lib.Config, client *worker.WorkerClient,
+) *InvoiceServiceImpl {
 	return &InvoiceServiceImpl{
-		repository: database.DB,
-		config:     config,
+		repository:   database.DB,
+		config:       config,
+		workerClient: client,
 	}
 }
 
@@ -57,6 +64,11 @@ func (s *InvoiceServiceImpl) CreateInvoice(invoiceDto dto.CreateInvoiceDto) (
 	}
 
 	paymentUrl := s.generatePaymentUrl(invoice.ID)
+
+	err = s.enqueuePaymentTask(invoice)
+	if err != nil {
+		return nil, ErrEnqueuePaymentTaskFail
+	}
 
 	return &dao.CreateInvoiceDao{
 		ID:         invoice.ID,
@@ -101,22 +113,31 @@ func (s *InvoiceServiceImpl) checkExistingInvoice(bookingID string) (bool, error
 	// check existing invoice with status paid / pending
 	// if failed, can retry?
 	err := s.repository.Where(
-		"booking_id = ? AND status && ?", bookingID,
-		[]models.InvoiceStatus{models.INVOICESTATUS_PAID, models.INVOICESTATUS_PENDING},
+		"booking_id = ? AND status = ANY(?::_invoice_status)", bookingID,
+		pq.Array([]models.InvoiceStatus{models.INVOICESTATUS_PAID, models.INVOICESTATUS_PENDING}),
 	).First(&existingInvoice).Error
 
 	// record found
 	if err == nil {
-		return false, nil
+		return true, nil
 	}
 
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		return false, err
+		return true, err
 	}
 
-	return true, nil
+	return false, nil
 }
 
 func (s *InvoiceServiceImpl) generatePaymentUrl(invoiceID string) string {
-	return fmt.Sprintf("http://%s:%s/payment?invoiceID=%s", s.config.ServiceHost, s.config.ServicePort, invoiceID)
+	return fmt.Sprintf("%s:%s/payment?invoiceID=%s", s.config.ServiceHost, s.config.ServicePort, invoiceID)
+}
+
+func (s *InvoiceServiceImpl) enqueuePaymentTask(invoice models.Invoice) error {
+	paymentTask, err := tasks.NewMakePaymentTask(invoice)
+	if err != nil {
+		return err
+	}
+	s.workerClient.Enqueue(paymentTask)
+	return nil
 }
