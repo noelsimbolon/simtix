@@ -32,21 +32,19 @@ export class UserService {
   }
 
   findAll() {
-    return this.userRepository
-      .createQueryBuilder('user')
-      .where('user.deleted_at IS NULL')
-      .getMany();
+    return this.userRepository.find();
   }
 
   async findOne(id: string) {
     const user = await this.userRepository
       .createQueryBuilder('user')
       .where('user.id = :id', { id })
-      .andWhere('user.deleted_at IS NULL')
       .getOne();
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
+
     return user;
   }
 
@@ -72,7 +70,7 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    user.deleted_at = new Date();
+    user.deletedAt = new Date();
     return this.userRepository.save(user);
   }
 
