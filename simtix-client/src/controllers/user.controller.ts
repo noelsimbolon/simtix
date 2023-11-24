@@ -8,8 +8,6 @@ import {
   Param,
   NotFoundException,
   ConflictException,
-  HttpCode,
-  HttpStatus,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { CreateUserDto, UpdateUserDto } from '../domains/dtos/user.dto';
