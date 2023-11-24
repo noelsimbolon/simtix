@@ -21,12 +21,20 @@ export class User {
   @Column({ type: 'varchar', length: 255, select: false })
   password: string;
 
-  @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
+  @CreateDateColumn({
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+    name: 'created_at',
+  })
+  createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
-  updated_at: Date;
+  @UpdateDateColumn({
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+    name: 'updated_at',
+  })
+  updatedAt: Date;
 
-  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
-  deleted_at: Date;
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true, name: 'deleted_at' })
+  deletedAt: Date;
 }
