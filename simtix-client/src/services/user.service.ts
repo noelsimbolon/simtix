@@ -53,6 +53,10 @@ export class UserService {
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.findOne(id);
 
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     // Hash the new password
     if (updateUserDto.password) {
       updateUserDto.password = await this.hashPassword(updateUserDto.password);
@@ -63,6 +67,11 @@ export class UserService {
 
   async remove(id: string) {
     const user = await this.findOne(id);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     user.deleted_at = new Date();
     return this.userRepository.save(user);
   }
