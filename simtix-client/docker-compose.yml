@@ -19,6 +19,17 @@ services:
       timeout: 3s
       retries: 5
 
+  simtix-rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "check_running" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   simtix-client:
     build: .
     env_file:
@@ -28,6 +39,9 @@ services:
     depends_on:
       simtix-client-db:
         condition: service_healthy
+      simtix-rabbitmq:
+        condition: service_healthy
+    restart: on-failure
 
 volumes:
   simtix_client_db:
