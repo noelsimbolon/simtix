@@ -1,6 +1,8 @@
-package model
+package event
+
+import "simtix-ticketing/model"
 
 type Event struct {
-	Model
+	model.Model
 	EventName string `json:"eventName"`
 }
