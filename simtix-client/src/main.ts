@@ -2,19 +2,15 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
-import * as process from 'process';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
 
-  const RABBITMQ_URL =
-    process.env.RABBITMQ_URL || 'amqp://simtix-rabbitmq:5672';
-
   const microservice = app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
-      urls: [RABBITMQ_URL],
+      urls: ['amqp://simtix-rabbitmq:5672'],
       queue: 'client_queue',
       queueOptions: {
         durable: false,

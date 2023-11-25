@@ -4,7 +4,6 @@ import * as fs from 'fs';
 
 const env = dotenv.parse(fs.readFileSync(`.env`));
 
-// TODO: host and port need to be adjusted as development goes
 const typeormConfig: DataSourceOptions = {
   type: 'postgres',
   host: env.PSQL_HOST,
