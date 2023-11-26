@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
+import { RABBITMQ_URL, QUEUE_NAME, APP_PORT } from './configs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,8 +11,8 @@ async function bootstrap() {
   const microservice = app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
-      urls: ['amqp://simtix-rabbitmq:5672'],
-      queue: 'client_queue',
+      urls: [RABBITMQ_URL],
+      queue: QUEUE_NAME,
       queueOptions: {
         durable: false,
       },
@@ -19,9 +20,9 @@ async function bootstrap() {
   });
 
   await app.startAllMicroservices();
-  await app.listen(8000);
+  await app.listen(APP_PORT);
 
-  console.log('HTTP server is listening on port 8000');
+  console.log('HTTP server is listening on port ', APP_PORT);
   console.log('Microservice is listening');
 }
 
