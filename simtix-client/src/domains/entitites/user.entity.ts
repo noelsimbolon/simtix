@@ -13,12 +13,12 @@ export class User {
   id: string;
 
   @Column({ type: 'varchar', length: 255 })
-  username: string;
+  email: string;
 
   @Column({ type: 'varchar', length: 255 })
   name: string;
 
-  @Column({ type: 'varchar', length: 255, select: false })
+  @Column({ type: 'varchar', length: 255 })
   password: string;
 
   @CreateDateColumn({
