@@ -3,8 +3,8 @@ package worker
 import (
 	"github.com/hibiken/asynq"
 	"log"
-	"ticketing/worker/handlers"
-	"ticketing/worker/tasks"
+	"simtix-ticketing/worker/handlers"
+	"simtix-ticketing/worker/tasks"
 )
 
 type WorkerServer struct {
