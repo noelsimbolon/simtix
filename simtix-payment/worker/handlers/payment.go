@@ -7,6 +7,7 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
+	"simtix/clients/ticketing"
 	"simtix/lib"
 	"simtix/models"
 	"simtix/utils/logger"
@@ -16,12 +17,14 @@ import (
 var paymentTaskCount = 0
 
 type MakePaymentHandler struct {
-	repository *gorm.DB
+	repository      *gorm.DB
+	ticketingClient *ticketing.TicketingClient
 }
 
-func NewMakePaymentHandler(db *lib.Database) *MakePaymentHandler {
+func NewMakePaymentHandler(db *lib.Database, client *ticketing.TicketingClient) *MakePaymentHandler {
 	return &MakePaymentHandler{
-		repository: db.DB,
+		repository:      db.DB,
+		ticketingClient: client,
 	}
 }
 
@@ -70,6 +73,8 @@ func (h *MakePaymentHandler) updateInvoiceStatus(invoiceID string, status models
 	if err != nil {
 		return err
 	}
+	// to do: uncomment and test
+	//h.ticketingClient.PutBooking(&invoice)
 	return nil
 }
 
@@ -83,8 +88,11 @@ func (h *MakePaymentHandler) unmarshalPayload(t *asynq.Task) (*tasks.MakePayment
 	return &payload, nil
 }
 
-func (h *MakePaymentHandler) HandleError(t *asynq.Task) {
+func (h *MakePaymentHandler) HandleError(t *asynq.Task) error {
 	payload, _ := h.unmarshalPayload(t)
+
 	logger.Log.Info(fmt.Sprintf("Handling failed payment for invoice: %s", payload.InvoiceID))
-	// to do post to webhook
+
+	err := h.updateInvoiceStatus(payload.InvoiceID, models.INVOICESTATUS_FAILED)
+	return err
 }

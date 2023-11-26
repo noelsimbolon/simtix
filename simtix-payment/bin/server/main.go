@@ -29,7 +29,7 @@ func main() {
 		routes.Module,
 		worker.Module,
 		fx.Invoke(startApp),
-		//fx.NopLogger,
+		fx.NopLogger,
 	)
 	app.Run()
 }
