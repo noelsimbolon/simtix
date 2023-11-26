@@ -18,17 +18,24 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto) {
     const user = await this.userRepository.findOne({
-      where: { username: createUserDto.username },
+      where: { email: createUserDto.email },
     });
 
     if (user) {
-      throw new ConflictException('Username already exists');
+      throw new ConflictException('Email already existed');
     }
 
     // Hash the password
     createUserDto.password = await this.hashPassword(createUserDto.password);
 
-    return this.userRepository.save(createUserDto);
+    const createdUser = await this.userRepository.save(createUserDto);
+
+    return {
+      id: createdUser.id,
+      email: createdUser.email,
+      name: createdUser.name,
+      createdAt: createdUser.createdAt,
+    };
   }
 
   findAll() {
@@ -39,6 +46,23 @@ export class UserService {
     const user = await this.userRepository
       .createQueryBuilder('user')
       .where('user.id = :id', { id })
+      .getOne();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    };
+  }
+
+  async findByEmail(email: string) {
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.email = :email', { email })
       .getOne();
 
     if (!user) {
@@ -70,8 +94,7 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    user.deletedAt = new Date();
-    return this.userRepository.save(user);
+    return await this.userRepository.softDelete(id);
   }
 
   private async hashPassword(password: string): Promise<string> {
