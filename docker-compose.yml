@@ -7,12 +7,12 @@ services:
     networks:
       - simtix-microservices
 
-  simtix-ticketing:
-    build:
-      context: ./simtix-ticketing
-      dockerfile: Dockerfile
-    networks:
-      - simtix-microservices
+#  simtix-ticketing:
+#    build:
+#      context: ./simtix-ticketing
+#      dockerfile: Dockerfile
+#    networks:
+#      - simtix-microservices
 
   simtix-ticketing-db:
     container_name: simtix-ticketing-db
@@ -28,7 +28,7 @@ services:
   simtix-ticketing-cache:
     image: redis:7.2.3-alpine
     ports:
-      - "8003:6379"
+      - "6380:6379"
     networks:
       - simtix-microservices
 
@@ -52,12 +52,12 @@ services:
     networks:
       - simtix-microservices
 
-  simtix-payment:
-    build:
-      context: ./simtix-payment
-      dockerfile: Dockerfile
-    networks:
-      - simtix-microservices
+#  simtix-payment:
+#    build:
+#      context: ./simtix-payment
+#      dockerfile: Dockerfile
+#    networks:
+#      - simtix-microservices
 
   simtix-payment-db:
     container_name: simtix-payment-db
@@ -70,5 +70,27 @@ services:
     networks:
       - simtix-microservices
 
+  simtix-client-db:
+    image: postgres
+    env_file:
+      - simtix-client/.env
+    hostname: ${PSQL_HOST}
+    environment:
+      POSTGRES_DB: ${PSQL_DBNAME}
+      POSTGRES_USER: ${PSQL_USERNAME}
+      POSTGRES_PASSWORD: ${PSQL_PASSWORD}
+    ports:
+      - '8003:5432'
+    volumes:
+      - simtix_client_db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${PSQL_USERNAME} -d ${PSQL_DBNAME} -h ${PSQL_HOST} -p 5432" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
 networks:
   simtix-microservices:
+
+volumes:
+  simtix_client_db:
