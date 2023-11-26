@@ -1,74 +1,45 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  NotFoundException,
-  ConflictException,
-} from '@nestjs/common';
+import { Controller, Get, Put, Delete, Body, Req } from '@nestjs/common';
 import { UserService } from '../services/user.service';
-import { CreateUserDto, UpdateUserDto } from '../domains/dtos/user.dto';
+import { UpdateUserDto } from '../domains/dtos/user.dto';
+import { Request } from 'express';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '../guards/auth.guard';
+
+interface IRequestWithUser extends Request {
+  user: {
+    id: string;
+  };
+}
 
 @Controller('users')
+@UseGuards(AuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
-    try {
-      const user = await this.userService.create(createUserDto);
-      return { message: 'User created successfully', user };
-    } catch (error) {
-      if (error instanceof ConflictException) {
-        throw new ConflictException('Username already exists');
-      }
-    }
-  }
-
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  async findOne(@Req() req: IRequestWithUser) {
+    const userId = req.user.id;
+    return await this.userService.findOne(userId);
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    try {
-      return await this.userService.findOne(id);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException('User not found');
-      }
-    }
+  @Put()
+  async update(
+    @Req() req: IRequestWithUser,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const userId = req.user.id;
+    await this.userService.update(userId, updateUserDto);
+    return {
+      message: 'User updated successfully',
+      id: userId,
+      changes: updateUserDto,
+    };
   }
 
-  @Put(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    try {
-      await this.userService.update(id, updateUserDto);
-      return {
-        message: 'User updated successfully',
-        id,
-        changes: updateUserDto,
-      };
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException('User not found');
-      }
-    }
-  }
-
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    try {
-      await this.userService.remove(id);
-      return { message: 'User deleted successfully', id };
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException('User not found');
-      }
-    }
+  @Delete()
+  async remove(@Req() req: IRequestWithUser) {
+    const userId = req.user.id;
+    await this.userService.remove(userId);
+    return { message: 'User deleted successfully', id: userId };
   }
 }
