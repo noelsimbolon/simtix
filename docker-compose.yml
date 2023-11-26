@@ -1,11 +1,11 @@
 services:
 
-#  simtix-client:
-#    build:
-#      context: ./simtix-client
-#      dockerfile: Dockerfile
-#    networks:
-#      - simtix-microservices
+  simtix-client:
+    build:
+      context: ./simtix-client
+      dockerfile: Dockerfile
+    networks:
+      - simtix-microservices
 
   simtix-ticketing:
     build:
@@ -18,18 +18,24 @@ services:
     container_name: simtix-ticketing-db
     hostname: simtix-ticketing-db
     image: postgres:16.1-alpine
+    ports:
+      - "8002:5432"
     env_file:
-      - .env
+      - simtix-ticketing/.env
     networks:
       - simtix-microservices
 
   simtix-ticketing-cache:
     image: redis:7.2.3-alpine
+    ports:
+      - "8003:6379"
     networks:
       - simtix-microservices
 
   simtix-ticketing-seat-queue:
     image: redis:7.2.3-alpine
+    ports:
+      - "8004:6379"
     networks:
       - simtix-microservices
 
@@ -43,6 +49,24 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - simtix-microservices
+
+  simtix-payment:
+    build:
+      context: ./simtix-payment
+      dockerfile: Dockerfile
+    networks:
+      - simtix-microservices
+
+  simtix-payment-db:
+    container_name: simtix-payment-db
+    hostname: simtix-payment-db
+    image: postgres:16.1-alpine
+    ports:
+      - "8002:5432"
+    env_file:
+      - simtix-payment/.env
     networks:
       - simtix-microservices
 
