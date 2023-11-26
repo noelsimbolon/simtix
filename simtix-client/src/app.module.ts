@@ -7,6 +7,7 @@ import typeormConfig from './configs/typeorm.config';
 import { UserModule } from './modules/user.module';
 import { QueueModule } from './modules/queue.module';
 import { AuthModule } from './modules/auth.module';
+import { BookingModule } from './modules/booking.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { AuthModule } from './modules/auth.module';
     QueueModule,
     UserModule,
     AuthModule,
+    BookingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
