@@ -1,5 +1,5 @@
 # Environment variables
-simtix-ticketing/.env
+**/*.env
 
 # Compiled output
 /simtix-client/dist

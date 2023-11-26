@@ -13,7 +13,7 @@ async function bootstrap() {
       urls: ['amqp://simtix-rabbitmq:5672'],
       queue: 'client_queue',
       queueOptions: {
-        durable: false,
+        durable: true,
       },
     },
   });
