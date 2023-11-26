@@ -34,7 +34,15 @@ services:
       - simtix-microservices
 
   simtix-ticketing-task-queue:
-    image: rabbitmq:3.12.9-alpine
+    image: rabbitmq:3.12.9-management-alpine
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "check_running" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - simtix-microservices
 
