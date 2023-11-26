@@ -5,6 +5,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.uber.org/fx"
 	"os"
+	"simtix/clients"
 	"simtix/domain"
 	"simtix/lib"
 	"simtix/utils/logger"
@@ -25,6 +26,7 @@ func main() {
 		worker.Module,
 		domain.Module,
 		handlers.Module,
+		clients.Module,
 		fx.Invoke(startServer),
 		//fx.NopLogger,
 	)

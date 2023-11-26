@@ -52,7 +52,8 @@ func (s *WorkerServer) HandleError(ctx context.Context, task *asynq.Task, err er
 	if retried >= maxRetry {
 		err = fmt.Errorf("retry exhausted for task %s: %w", task.Type(), err)
 		if task.Type() == tasks.TypeMakePaymentTask {
-			s.paymentHandler.HandleError(task)
+			err = s.paymentHandler.HandleError(task)
 		}
+		logger.Log.Error(err)
 	}
 }
