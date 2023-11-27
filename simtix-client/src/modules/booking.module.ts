@@ -10,5 +10,6 @@ import { Booking } from '../domains/entitites/booking.entity';
   imports: [TypeOrmModule.forFeature([Booking]), UserModule],
   controllers: [BookingController],
   providers: [BookingService, JwtService],
+  exports: [BookingService],
 })
 export class BookingModule {}

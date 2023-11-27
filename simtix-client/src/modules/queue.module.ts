@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { QueueController } from '../controllers/queue.controller';
 import { RABBITMQ_URL, QUEUE_NAME } from '../configs/config';
+import { BookingModule } from './booking.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { RABBITMQ_URL, QUEUE_NAME } from '../configs/config';
         },
       },
     ]),
+    BookingModule,
   ],
   controllers: [QueueController],
 })
