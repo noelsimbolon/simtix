@@ -43,7 +43,7 @@ export class Booking {
   @Column({ type: 'text', name: 'invoice_url' })
   invoiceUrl: string;
 
-  @Column({ type: 'text', name: 'booking_url' })
+  @Column({ type: 'text', name: 'booking_url', nullable: true })
   bookingUrl: string;
 
   @CreateDateColumn({
