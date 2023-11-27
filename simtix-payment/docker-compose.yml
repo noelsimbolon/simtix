@@ -10,9 +10,16 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
     env_file: .env
+  simtix-payment:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3003:3003
+    env_file: .env
 
 networks:
-  simtix-payment:
+  simtix:
 
 volumes:
   db:
