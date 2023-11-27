@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: ${PSQL_USERNAME}
       POSTGRES_PASSWORD: ${PSQL_PASSWORD}
     ports:
-      - '8080:${PSQL_PORT}'
+      - '8001:${PSQL_PORT}'
     volumes:
       - simtix_client_db:/var/lib/postgresql/data
     healthcheck:
