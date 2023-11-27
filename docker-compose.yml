@@ -1,49 +1,82 @@
 services:
 
-  simtix-client:
+#  simtix-client:
+#    build:
+#      context: ./simtix-client
+#      dockerfile: Dockerfile
+#    depends_on:
+#      simtix-client-db:
+#        condition: service_healthy
+#    networks:
+#      - simtix-microservices
+
+#  simtix-client-db:
+#    container_name: simtix-client-db
+#    hostname: ${PSQL_HOST}
+#    image: postgres:16.1-alpine
+#    ports:
+#      - '8002:5432'
+#    env_file:
+#      - simtix-client/.env
+#    environment:
+#      POSTGRES_DB: ${PSQL_DBNAME}
+#      POSTGRES_USER: ${PSQL_USERNAME}
+#      POSTGRES_PASSWORD: ${PSQL_PASSWORD}
+#    volumes:
+#      - simtix-client-db:/var/lib/postgresql/data
+#    healthcheck:
+#      test: pg_isready
+#      interval: 5s
+#      timeout: 3s
+#      retries: 5
+#    networks:
+#      - simtix-microservices
+
+  simtix-ticketing:
     build:
-      context: ./simtix-client
+      context: ./simtix-ticketing
       dockerfile: Dockerfile
+    ports:
+      - "8003:8000"
+    env_file:
+      - simtix-ticketing/.env
     depends_on:
-      simtix-client-db:
+      simtix-ticketing-db:
         condition: service_healthy
     networks:
       - simtix-microservices
 
-  simtix-client-db:
-    extends:
-      file: simtix-client/docker-compose.yml
-      service: simtix-client-db
-    env_file: .env
-#  simtix-ticketing:
-#    build:
-#      context: ./simtix-ticketing
-#      dockerfile: Dockerfile
-#    networks:
-#      - simtix-microservices
+  simtix-ticketing-db:
+    container_name: simtix-ticketing-db
+    hostname: simtix-ticketing-db
+    image: postgres:16.1-alpine
+    ports:
+      - "8004:5432"
+    env_file:
+      - simtix-ticketing/.env
+    volumes:
+      - simtix-ticketing-db:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - simtix-microservices
 
-#  simtix-ticketing-db:
-#    container_name: simtix-ticketing-db
-#    hostname: simtix-ticketing-db
-#    image: postgres:16.1-alpine
-#    ports:
-#      - "8002:5432"
-#    env_file:
-#      - simtix-ticketing/.env
-#    networks:
-#      - simtix-microservices
-#
 #  simtix-ticketing-cache:
 #    image: redis:7.2.3-alpine
 #    ports:
-#      - "6380:6379"
+#      - "8005:6379"
 #    networks:
 #      - simtix-microservices
 
 #  simtix-ticketing-seat-queue:
+#    container_name: simtix-ticketing-seat-queue
+#    hostname: simtix-ticketing-seat-queue
 #    image: redis:7.2.3-alpine
 #    ports:
-#      - "8004:6379"
+#      - "8006:6379"
 #    networks:
 #      - simtix-microservices
 
@@ -78,9 +111,9 @@ services:
 #    networks:
 #      - simtix-microservices
 
-
 networks:
   simtix-microservices:
 
 volumes:
-  simtix_client_db:
+  simtix-client-db:
+  simtix-ticketing-db:
