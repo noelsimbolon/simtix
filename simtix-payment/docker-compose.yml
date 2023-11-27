@@ -6,7 +6,7 @@ services:
       - 8005:5432
     image: postgres:14
     networks:
-      - simtix-payment
+      - simtix
     volumes:
       - db:/var/lib/postgresql/data
     env_file: .env
@@ -20,6 +20,7 @@ services:
 
 networks:
   simtix:
+    external: true
 
 volumes:
   db:
