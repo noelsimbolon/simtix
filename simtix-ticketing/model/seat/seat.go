@@ -12,6 +12,6 @@ const (
 
 type Seat struct {
 	model.Model
-	EventID string     `json:"bookingID"`
+	EventID string     `json:"eventID"`
 	Status  SeatStatus `json:"status"`
 }
