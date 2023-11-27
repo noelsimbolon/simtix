@@ -37,6 +37,15 @@ export class Booking {
   })
   status: BookingStatus;
 
+  @Column({ type: 'uuid', name: 'invoice_number' })
+  invoiceNumber: string;
+
+  @Column({ type: 'text', name: 'invoice_url' })
+  invoiceUrl: string;
+
+  @Column({ type: 'text', name: 'booking_url' })
+  bookingUrl: string;
+
   @CreateDateColumn({
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
