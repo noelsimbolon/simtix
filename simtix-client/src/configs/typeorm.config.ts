@@ -7,7 +7,7 @@ const env = dotenv.parse(fs.readFileSync(`.env`));
 const typeormConfig: DataSourceOptions = {
   type: 'postgres',
   host: env.PSQL_HOST,
-  port: 5432,
+  port: Number(env.PSQL_PORT),
   username: env.PSQL_USERNAME,
   password: env.PSQL_PASSWORD,
   database: env.PSQL_DBNAME,

@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: ${PSQL_USERNAME}
       POSTGRES_PASSWORD: ${PSQL_PASSWORD}
     ports:
-      - '8080:5432'
+      - '8001:${PSQL_PORT}'
     volumes:
       - simtix_client_db:/var/lib/postgresql/data
     healthcheck:
@@ -35,7 +35,7 @@ services:
     env_file:
       - .env
     ports:
-      - '8000:8000'
+      - '8000:${APP_PORT}'
     depends_on:
       simtix-client-db:
         condition: service_healthy

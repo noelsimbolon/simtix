@@ -5,7 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { User } from './user.entity';
 
 export enum BookingStatus {
   ONGOING = 'ONGOING',
@@ -19,8 +22,9 @@ export class Booking {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid', name: 'user_id' })
-  userId: string;
+  @ManyToOne(() => User, (user) => user.bookings)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @Column({ type: 'uuid', name: 'seat_id' })
   seatId: string;
@@ -32,6 +36,15 @@ export class Booking {
     name: 'status',
   })
   status: BookingStatus;
+
+  @Column({ type: 'uuid', name: 'invoice_number' })
+  invoiceNumber: string;
+
+  @Column({ type: 'text', name: 'invoice_url' })
+  invoiceUrl: string;
+
+  @Column({ type: 'text', name: 'booking_url', nullable: true })
+  bookingUrl: string;
 
   @CreateDateColumn({
     type: 'timestamptz',

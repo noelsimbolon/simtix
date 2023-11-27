@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { QueueController } from '../controllers/queue.controller';
+import { RABBITMQ_URL, QUEUE_NAME } from '../configs/config';
+import { BookingModule } from './booking.module';
 
 @Module({
   imports: [
@@ -9,14 +11,15 @@ import { QueueController } from '../controllers/queue.controller';
         name: 'CLIENT_QUEUE',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://simtix-rabbitmq:5672'],
-          queue: 'client_queue',
+          urls: [RABBITMQ_URL],
+          queue: QUEUE_NAME,
           queueOptions: {
             durable: false,
           },
         },
       },
     ]),
+    BookingModule,
   ],
   controllers: [QueueController],
 })
