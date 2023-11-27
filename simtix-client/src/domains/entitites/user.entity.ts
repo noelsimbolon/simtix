@@ -5,7 +5,9 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { Booking } from './booking.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -20,6 +22,9 @@ export class User {
 
   @Column({ type: 'varchar', length: 255 })
   password: string;
+
+  @OneToMany(() => Booking, (booking) => booking.user)
+  bookings: Booking[];
 
   @CreateDateColumn({
     type: 'timestamptz',
