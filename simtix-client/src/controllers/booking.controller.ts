@@ -1,11 +1,8 @@
 import { Controller, Post, Body, Req, Get, Param } from '@nestjs/common';
 import { BookingService } from '../services/booking.service';
-import {
-  CreateBookingDto,
-  FindOneBookingDto,
-} from '../domains/dtos/booking.dto';
+import { CreateBookingDto } from '../domains/dtos/booking.dto';
 import { AuthGuard } from '../guards/auth.guard';
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, ParseUUIDPipe } from '@nestjs/common';
 
 @Controller('booking')
 @UseGuards(AuthGuard)
@@ -25,8 +22,8 @@ export class BookingController {
   }
 
   @Get(':id')
-  async findOne(@Param() params: FindOneBookingDto, @Req() req: any) {
+  async findOne(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: any) {
     const userId = req.user.id;
-    return this.bookingService.findOne(params.id, userId);
+    return this.bookingService.findOne(id, userId);
   }
 }
