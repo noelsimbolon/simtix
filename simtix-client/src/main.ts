@@ -6,6 +6,7 @@ import { RABBITMQ_URL, QUEUE_NAME, APP_PORT } from './configs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api/client')
   app.useGlobalPipes(new ValidationPipe());
 
   const microservice = app.connectMicroservice<MicroserviceOptions>({

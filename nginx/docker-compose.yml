@@ -1,4 +1,5 @@
 version: '3.9'
+
 services:
   nginx:
     image: nginx
@@ -9,6 +10,7 @@ services:
       - ./nginx/index.html:/app/html:ro
     networks:
       - simtix
+
 networks:
   simtix:
     external:
