@@ -3,12 +3,14 @@ package event
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	event2 "simtix-ticketing/model/event"
 	"simtix-ticketing/service/event"
 )
 
 type EventHandler interface {
 	GetAllEvents(c *gin.Context)
 	GetEventByID(c *gin.Context)
+	PostEvent(c *gin.Context)
 }
 
 type EventHandlerImpl struct {
@@ -61,6 +63,7 @@ func (e *EventHandlerImpl) GetAllEvents(c *gin.Context) {
 	*/
 
 	c.JSON(http.StatusOK, events)
+	return
 }
 
 func (e *EventHandlerImpl) GetEventByID(c *gin.Context) {
@@ -75,4 +78,23 @@ func (e *EventHandlerImpl) GetEventByID(c *gin.Context) {
 	//
 
 	c.JSON(http.StatusOK, ev)
+	return
+}
+
+func (e *EventHandlerImpl) PostEvent(c *gin.Context) {
+	var dto event2.CreateEventDto
+	err := c.ShouldBindJSON(&dto)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	event, custErr := e.service.CreateEvent(&dto)
+	if custErr != nil {
+		c.AbortWithStatusJSON(custErr.StatusCode, gin.H{"error": custErr.Err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, event)
+	return
 }

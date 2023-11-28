@@ -20,4 +20,5 @@ func (s EventRoute) Setup(rg *gin.RouterGroup) {
 
 	eventRoute.GET("/", s.eventHandler.GetAllEvents)
 	eventRoute.GET("/:eventID", s.eventHandler.GetEventByID)
+	eventRoute.POST("/", s.eventHandler.PostEvent)
 }

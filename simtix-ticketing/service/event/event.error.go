@@ -20,3 +20,13 @@ var ErrEventNotFound = &error.Error{
 	StatusCode: http.StatusBadRequest,
 	Err:        errors.New("Event not found with specified event ID."),
 }
+
+var ErrInvalidTime = &error.Error{
+	StatusCode: http.StatusBadRequest,
+	Err:        errors.New("Invalid event time given. Time should be in format RFC822: 02 Sep 15 08:00 WIB"),
+}
+
+var DbErrCreateEvent = &error.Error{
+	StatusCode: http.StatusInternalServerError,
+	Err:        errors.New("Unexpected database error when creating event."),
+}
