@@ -1,14 +1,11 @@
 FROM golang:latest
 
-WORKDIR /go/src/app
+WORKDIR /app
 
 COPY . .
 
-RUN go build -o /go/src/app/bin/server ./bin/server/main.go
-RUN go build -o /go/src/app/bin/worker ./bin/worker/main.go
-
-RUN chmod +x /go/src/app/bin/server
-RUN chmod +x /go/src/app/bin/worker
+RUN go build -o /app/bin/server ./cmd/server/server.go
+RUN go build -o /app/bin/worker ./cmd/worker/worker.go
 
 EXPOSE 3003
 
