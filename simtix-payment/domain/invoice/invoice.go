@@ -130,7 +130,7 @@ func (s *InvoiceServiceImpl) checkExistingInvoice(bookingID string) (bool, error
 }
 
 func (s *InvoiceServiceImpl) generatePaymentUrl(invoiceID string) string {
-	return fmt.Sprintf("%s:%s/payment?invoiceID=%s", s.config.ServiceHost, s.config.ServicePort, invoiceID)
+	return fmt.Sprintf("%s:%d/payment?invoiceID=%s", s.config.ServiceHost, s.config.ServicePort, invoiceID)
 }
 
 func (s *InvoiceServiceImpl) enqueuePaymentTask(invoice models.Invoice) error {

@@ -26,7 +26,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 3003:3003
+      - "3003:3003"
     env_file: .env
     depends_on:
       simtix-payment-db:
