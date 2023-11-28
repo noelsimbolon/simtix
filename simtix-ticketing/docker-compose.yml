@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  simtix-ticketing-db:
+    hostname: ${DB_HOST}
+    ports:
+      - "8006:5432"
+    image: postgres:14
+    networks:
+      - simtix
+    volumes:
+      - db:/var/lib/postgresql/data
+    env_file: .env
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME} -h ${DB_HOST} -p 5432" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+  simtix-ticketing:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3003"
+    env_file: .env
+    depends_on:
+      simtix-ticketing-db:
+        condition: service_healthy
+      simtix-ticketing-redis:
+        condition: service_healthy
+    networks:
+      - simtix
+
+  simtix-ticketing-redis:
+    image: redis:latest
+    networks:
+      - simtix
+    env_file:
+      - .env
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  simtix:
+    external: true
+
+volumes:
+  db:
