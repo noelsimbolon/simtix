@@ -1,6 +1,9 @@
 package seat
 
-import "simtix-ticketing/model"
+import (
+	"github.com/shopspring/decimal"
+	"simtix-ticketing/model"
+)
 
 type SeatStatus string
 
@@ -12,6 +15,9 @@ const (
 
 type Seat struct {
 	model.Model
-	EventID string     `json:"eventID"`
-	Status  SeatStatus `json:"status"`
+	EventID    string          `json:"eventID"`
+	Status     SeatStatus      `json:"status"`
+	SeatRow    string          `json:"seatRow"`
+	SeatNumber int             `json:"seatNumber"`
+	Price      decimal.Decimal `json:"price"`
 }
