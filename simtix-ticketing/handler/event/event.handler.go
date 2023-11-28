@@ -3,7 +3,7 @@ package event
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	event2 "simtix-ticketing/model/event"
+	event2 "simtix-ticketing/model/dto"
 	"simtix-ticketing/service/event"
 )
 

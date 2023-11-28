@@ -8,38 +8,43 @@ import (
 	"simtix-ticketing/clients/httpClient"
 	"simtix-ticketing/config"
 	"simtix-ticketing/database"
-	"simtix-ticketing/error"
-	event2 "simtix-ticketing/model/event"
-	"simtix-ticketing/model/seat"
+	"simtix-ticketing/model"
+	"simtix-ticketing/model/dao"
+	"simtix-ticketing/model/dto"
+	"simtix-ticketing/utils"
+	"simtix-ticketing/worker"
+	"simtix-ticketing/worker/tasks"
 )
 
 type SeatService interface {
-	GetSeatsByEventID(eventID string) ([]seat.Seat, *error.Error)
-	GetSeatByID(id string) (*seat.Seat, *error.Error)
-	CreateSeat(dto seat.CreateSeatDto) (*seat.Seat, *error.Error)
-	BookSeat(updateSeatStatusDto seat.BookSeatDto) (
-		*seat.Seat, *error.Error,
-	)
+	GetSeatsByEventID(eventID string) ([]model.Seat, *utils.Error)
+	GetSeatByID(id string) (*model.Seat, *utils.Error)
+	CreateSeat(dto dto.CreateSeatDto) (*model.Seat, *utils.Error)
+	BookSeat(updateSeatStatusDto dto.BookSeatDto) (*dao.BookSeatDao, *utils.Error)
+	UpdateSeatStatus(updateSeatStatusDto dto.UpdateSeatStatusDto) (*model.Seat, *utils.Error)
 }
 
 type SeatServiceImpl struct {
 	config        *config.Config
 	repository    *gorm.DB
 	paymentClient *httpClient.PaymentClient
+	workerClient  *worker.WorkerClient
 }
 
 func NewSeatService(
 	config *config.Config, database *database.Database, client *httpClient.PaymentClient,
+	workerClient *worker.WorkerClient,
 ) *SeatServiceImpl {
 	return &SeatServiceImpl{
 		config:        config,
 		repository:    database.DB,
 		paymentClient: client,
+		workerClient:  workerClient,
 	}
 }
 
-func (s *SeatServiceImpl) GetSeatsByEventID(eventID string) ([]seat.Seat, *error.Error) {
-	var seats []seat.Seat
+func (s *SeatServiceImpl) GetSeatsByEventID(eventID string) ([]model.Seat, *utils.Error) {
+	var seats []model.Seat
 	err := s.repository.Where("event_id = ?", eventID).Find(&seats).Error
 	if err != nil {
 		return nil, DbErrGetSeats
@@ -47,23 +52,26 @@ func (s *SeatServiceImpl) GetSeatsByEventID(eventID string) ([]seat.Seat, *error
 	return seats, nil
 }
 
-func (s *SeatServiceImpl) GetSeatByID(id string) (*seat.Seat, *error.Error) {
-	var seat seat.Seat
-	err := s.repository.Where("id = ?", id).First(&seat).Error
+func (s *SeatServiceImpl) GetSeatByID(id string) (*model.Seat, *utils.Error) {
+	var seat model.Seat
+	err := s.repository.Preload("Event").Where("id = ?", id).First(&seat).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrSeatNotFound
+		}
 		return nil, DbErrGetSeat
 	}
 	return &seat, nil
 }
 
-func (s *SeatServiceImpl) CreateSeat(seatDto seat.CreateSeatDto) (*seat.Seat, *error.Error) {
-	var event event2.Event
+func (s *SeatServiceImpl) CreateSeat(seatDto dto.CreateSeatDto) (*model.Seat, *utils.Error) {
+	var event model.Event
 	dbErr := s.repository.Where("id = ?", seatDto.EventID).First(&event).Error
 	if dbErr != nil {
 		return nil, ErrEventNotExist
 	}
 
-	var existingSeat seat.Seat
+	var existingSeat model.Seat
 	err := s.repository.Where(
 		"event_id = ? AND seat_number = ? AND seat_row = ?", seatDto.EventID, seatDto.SeatNumber,
 		seatDto.SeatRow,
@@ -76,11 +84,11 @@ func (s *SeatServiceImpl) CreateSeat(seatDto seat.CreateSeatDto) (*seat.Seat, *e
 		return nil, DbErrGetSeat
 	}
 
-	seat := seat.Seat{
+	seat := model.Seat{
 		EventID:    seatDto.EventID,
 		SeatNumber: seatDto.SeatNumber,
 		SeatRow:    seatDto.SeatRow,
-		Status:     seat.SEATSTATUS_OPEN,
+		Status:     model.SEATSTATUS_OPEN,
 		Price:      seatDto.Price,
 	}
 	err = s.repository.Create(&seat).Error
@@ -92,47 +100,62 @@ func (s *SeatServiceImpl) CreateSeat(seatDto seat.CreateSeatDto) (*seat.Seat, *e
 }
 
 // for webhook
-func (s *SeatServiceImpl) UpdateSeatStatus(updateSeatStatusDto seat.UpdateSeatStatusDto) (*seat.Seat, *error.Error) {
-	existingSeat, err := s.GetSeatByID(updateSeatStatusDto.SeatID)
+func (s *SeatServiceImpl) UpdateSeatStatus(updateSeatStatusDto dto.UpdateSeatStatusDto) (
+	*model.Seat, *utils.Error,
+) {
+	existingSeat, err := s.GetSeatByID(updateSeatStatusDto.BookingID)
 	if err != nil {
 		return nil, err
 	}
 
-	existingSeat.Status = updateSeatStatusDto.Status
+	if updateSeatStatusDto.InvoiceStatus == dto.INVOICESTATUS_PAID {
+		existingSeat.Status = model.SEATSTATUS_BOOKED
+	} else if updateSeatStatusDto.InvoiceStatus == dto.INVOICESTATUS_FAILED {
+		existingSeat.Status = model.SEATSTATUS_OPEN
+	}
 
 	dbErr := s.repository.Save(&existingSeat).Error
 	if dbErr != nil {
 		return nil, DbErrCreateSeat
 	}
+
+	s.enqueuePdfTask(existingSeat, updateSeatStatusDto.BookingID)
 
 	return existingSeat, nil
 }
 
 // for client service
-func (s *SeatServiceImpl) BookSeat(updateSeatStatusDto seat.BookSeatDto) (
-	*seat.Seat, *error.Error,
+func (s *SeatServiceImpl) BookSeat(updateSeatStatusDto dto.BookSeatDto) (
+	*dao.BookSeatDao, *utils.Error,
 ) {
 	existingSeat, err := s.GetSeatByID(updateSeatStatusDto.SeatID)
 	if err != nil {
 		return nil, err
 	}
-	if existingSeat.Status != seat.SEATSTATUS_OPEN {
+	if existingSeat.Status != model.SEATSTATUS_OPEN {
 		return nil, ErrSeatNotAvailable
 	}
 	if !s.checkSeatExternally(updateSeatStatusDto.SeatID) {
 		return nil, ErrExternalCallFailed
 	}
-	_, err = s.makeInvoice(existingSeat.Price, updateSeatStatusDto.BookingID)
+	invoice, err := s.makeInvoice(existingSeat.Price, updateSeatStatusDto.BookingID)
 	if err != nil {
+		log.Print(err)
 		return nil, err
 	}
 	// what to do with invoice?
-	existingSeat.Status = seat.SEATSTATUS_ONGOING
+	existingSeat.Status = model.SEATSTATUS_ONGOING
 	dbErr := s.repository.Save(&existingSeat).Error
 	if dbErr != nil {
+		log.Print(dbErr)
 		return nil, DbErrCreateSeat
 	}
-	return existingSeat, nil
+
+	bookSeatDao := dao.BookSeatDao{
+		Seat:    *existingSeat,
+		Invoice: invoice,
+	}
+	return &bookSeatDao, nil
 }
 
 var checkSeatExternallyCnt = 0
@@ -143,7 +166,7 @@ func (s *SeatServiceImpl) checkSeatExternally(seatID string) bool {
 }
 
 func (s *SeatServiceImpl) makeInvoice(amount decimal.Decimal, bookingID string) (
-	*httpClient.PostInvoiceResponse, *error.Error,
+	*httpClient.PostInvoiceResponse, *utils.Error,
 ) {
 	payload := httpClient.PostInvoicePayload{
 		BookingID: bookingID,
@@ -155,4 +178,17 @@ func (s *SeatServiceImpl) makeInvoice(amount decimal.Decimal, bookingID string) 
 		return nil, ErrMakePaymentFailed
 	}
 	return invoice, nil
+}
+
+func (s *SeatServiceImpl) enqueuePdfTask(seat *model.Seat, bookingID string) error {
+	payload := tasks.GeneratePdfPayload{
+		BookingID: bookingID,
+		Seat:      *seat,
+	}
+	pdfTask, err := tasks.NewGeneratePdfTask(payload)
+	if err != nil {
+		return err
+	}
+	s.workerClient.Enqueue(pdfTask)
+	return nil
 }

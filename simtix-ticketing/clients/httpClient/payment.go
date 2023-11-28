@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/shopspring/decimal"
 	"io"
+	"log"
 	"net/http"
 	"simtix-ticketing/config"
 )
@@ -30,8 +31,14 @@ type PostInvoiceResponse struct {
 	PaymentUrl string `json:"paymentUrl"`
 }
 
+type ErrorResponse struct {
+	error string `json:"error"`
+}
+
 func (c *PaymentClient) PostInvoice(payload *PostInvoicePayload) (*PostInvoiceResponse, error) {
 	payloadJSON, err := json.Marshal(payload)
+
+	log.Print(payloadJSON)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal invoice to JSON: %v", err)
 	}
@@ -43,16 +50,18 @@ func (c *PaymentClient) PostInvoice(payload *PostInvoicePayload) (*PostInvoiceRe
 		return nil, fmt.Errorf("failed to make HTTP request: %v", err)
 	}
 	defer resp.Body.Close()
-
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		var testt interface{}
+		json.Unmarshal(body, testt)
+		log.Printf("%v", testt)
+		log.Print()
+		return nil, fmt.Errorf("unexpected response")
+	}
 	if resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("unexpected response status code: %d", resp.StatusCode)
 	}
 
-	body, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		return nil, fmt.Errorf("unexpected response")
-	}
 	var data PostInvoiceResponse
 	err = json.Unmarshal(body, &data)
 	if err != nil {

@@ -23,10 +23,10 @@ func main() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	app := fx.New(
 		lib.Module,
-		worker.Module,
 		domain.Module,
 		handlers.Module,
 		clients.Module,
+		worker.Module,
 		fx.Invoke(startServer),
 		//fx.NopLogger,
 	)

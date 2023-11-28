@@ -6,15 +6,17 @@ import (
 	"log"
 	"simtix-ticketing/config"
 	"simtix-ticketing/database"
-	"simtix-ticketing/error"
-	"simtix-ticketing/model/event"
+	"simtix-ticketing/model"
+	"simtix-ticketing/model/dao"
+	"simtix-ticketing/model/dto"
+	"simtix-ticketing/utils"
 	"time"
 )
 
 type EventService interface {
-	GetAllEvents() (*event.GetAllEventsDao, *error.Error)
-	GetEventByID(eventID string) (*event.Event, *error.Error)
-	CreateEvent(dto *event.CreateEventDto) (*event.Event, *error.Error)
+	GetAllEvents() (*dao.GetAllEventsDao, *utils.Error)
+	GetEventByID(eventID string) (*model.Event, *utils.Error)
+	CreateEvent(dto *dto.CreateEventDto) (*model.Event, *utils.Error)
 }
 
 type EventServiceImpl struct {
@@ -29,8 +31,8 @@ func NewEventService(config *config.Config, database *database.Database) *EventS
 	}
 }
 
-func (s *EventServiceImpl) GetAllEvents() (*event.GetAllEventsDao, *error.Error) {
-	var events []event.Event
+func (s *EventServiceImpl) GetAllEvents() (*dao.GetAllEventsDao, *utils.Error) {
+	var events []model.Event
 
 	err := s.repository.Find(&events).Error
 
@@ -38,13 +40,13 @@ func (s *EventServiceImpl) GetAllEvents() (*event.GetAllEventsDao, *error.Error)
 		return nil, DbErrGetAllEvents
 	}
 
-	return &event.GetAllEventsDao{
+	return &dao.GetAllEventsDao{
 		Events: events,
 	}, nil
 }
 
-func (s *EventServiceImpl) GetEventByID(eventID string) (*event.Event, *error.Error) {
-	var ev event.Event
+func (s *EventServiceImpl) GetEventByID(eventID string) (*model.Event, *utils.Error) {
+	var ev model.Event
 
 	err := s.repository.Where("id = ?", eventID).Preload("Seats", "event_id = ?", eventID).First(&ev).Error
 
@@ -59,13 +61,13 @@ func (s *EventServiceImpl) GetEventByID(eventID string) (*event.Event, *error.Er
 	return &ev, nil
 }
 
-func (s *EventServiceImpl) CreateEvent(dto *event.CreateEventDto) (*event.Event, *error.Error) {
+func (s *EventServiceImpl) CreateEvent(dto *dto.CreateEventDto) (*model.Event, *utils.Error) {
 	eventTime, err := time.Parse(time.RFC822, dto.EventTime)
 	if err != nil {
 		log.Print(err)
 		return nil, ErrInvalidTime
 	}
-	event := event.Event{
+	event := model.Event{
 		EventName: dto.EventName,
 		EventTime: eventTime,
 	}

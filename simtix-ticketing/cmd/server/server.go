@@ -10,6 +10,7 @@ import (
 	"simtix-ticketing/route"
 	"simtix-ticketing/server"
 	"simtix-ticketing/service"
+	"simtix-ticketing/worker"
 )
 
 func startApp(server *server.Server, database *database.Database) {
@@ -24,6 +25,7 @@ func main() {
 		database.Module,
 		service.Module,
 		handler.Module,
+		worker.Module,
 		route.Module,
 		httpClient.Module,
 		fx.Invoke(startApp),

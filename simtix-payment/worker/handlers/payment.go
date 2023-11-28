@@ -7,6 +7,7 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
+	"log"
 	"simtix/clients/ticketing"
 	"simtix/lib"
 	"simtix/models"
@@ -50,7 +51,7 @@ func (h *MakePaymentHandler) HandleMakePaymentTask() asynq.HandlerFunc {
 
 		paymentTaskCount += 1
 
-		err = h.updateInvoiceStatus(payload.InvoiceID, models.INVOICESTATUS_PAID)
+		err = h.UpdateInvoiceStatus(payload.InvoiceID, models.INVOICESTATUS_PAID)
 		if err != nil {
 			logger.Log.Error(err)
 		}
@@ -61,8 +62,10 @@ func (h *MakePaymentHandler) HandleMakePaymentTask() asynq.HandlerFunc {
 	}
 }
 
-func (h *MakePaymentHandler) updateInvoiceStatus(invoiceID string, status models.InvoiceStatus) error {
+func (h *MakePaymentHandler) UpdateInvoiceStatus(invoiceID string, status models.InvoiceStatus) error {
 	var invoice models.Invoice
+	log.Print(h)
+	log.Print(h.repository)
 	err := h.repository.Where("id = ?", invoiceID).First(&invoice).Error
 	if err != nil {
 		return err
@@ -74,7 +77,7 @@ func (h *MakePaymentHandler) updateInvoiceStatus(invoiceID string, status models
 		return err
 	}
 	// to do: uncomment and test
-	//h.ticketingClient.PutBooking(&invoice)
+	h.ticketingClient.PutBooking(&invoice)
 	return nil
 }
 
@@ -93,6 +96,6 @@ func (h *MakePaymentHandler) HandleError(t *asynq.Task) error {
 
 	logger.Log.Info(fmt.Sprintf("Handling failed payment for invoice: %s", payload.InvoiceID))
 
-	err := h.updateInvoiceStatus(payload.InvoiceID, models.INVOICESTATUS_FAILED)
+	err := h.UpdateInvoiceStatus(payload.InvoiceID, models.INVOICESTATUS_FAILED)
 	return err
 }

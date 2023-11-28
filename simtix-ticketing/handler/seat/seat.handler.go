@@ -1,9 +1,15 @@
 package seat
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	seat2 "simtix-ticketing/model/seat"
+	"simtix-ticketing/config"
+	seat2 "simtix-ticketing/model/dto"
 	"simtix-ticketing/service/seat"
 )
 
@@ -11,17 +17,19 @@ type SeatHandler interface {
 	GetSeatsByEvent(c *gin.Context)
 	GetSeatByID(c *gin.Context)
 	PostSeat(c *gin.Context)
-	//PatchSeatStatus(c *gin.Context)
+	SeatWebhook(c *gin.Context)
 	PatchSeatForBooking(c *gin.Context)
 }
 
 type SeatHandlerImpl struct {
-	service seat.SeatService
+	service       seat.SeatService
+	webhookSecret string
 }
 
-func NewSeatHandler(service seat.SeatService) *SeatHandlerImpl {
+func NewSeatHandler(service seat.SeatService, config *config.Config) *SeatHandlerImpl {
 	return &SeatHandlerImpl{
-		service: service,
+		service:       service,
+		webhookSecret: config.WebhookSecret,
 	}
 }
 
@@ -88,4 +96,53 @@ func (h *SeatHandlerImpl) PatchSeatForBooking(c *gin.Context) {
 
 	c.JSON(http.StatusOK, seat)
 	return
+}
+
+func (h *SeatHandlerImpl) SeatWebhook(c *gin.Context) {
+	signature := c.GetHeader("X-Webhook-Signature")
+	body, err := c.GetRawData()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
+		return
+	}
+
+	if err := h.checkWebhookSignature(signature, body); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid webhook signature"})
+		return
+	}
+
+	var payload seat2.UpdateSeatStatusDto
+	err = json.Unmarshal(body, &payload)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, custErr := h.service.UpdateSeatStatus(payload)
+	if custErr != nil {
+		c.JSON(custErr.StatusCode, gin.H{"error": custErr.Err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Webhook processed successfully"})
+}
+
+func (h *SeatHandlerImpl) checkWebhookSignature(signature string, body []byte) error {
+	calculatedSignature, err := h.calculateHMAC(body)
+	if err != nil {
+		return fmt.Errorf("failed to calculate HMAC: %v", err)
+	}
+
+	if signature != calculatedSignature {
+		return fmt.Errorf("invalid webhook signature")
+	}
+	return nil
+}
+
+func (h *SeatHandlerImpl) calculateHMAC(body []byte) (string, error) {
+	key := []byte(h.webhookSecret)
+	hashed := hmac.New(sha256.New, key)
+	hashed.Write(body)
+	signature := base64.StdEncoding.EncodeToString(hashed.Sum(nil))
+	return signature, nil
 }
