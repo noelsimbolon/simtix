@@ -4,11 +4,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/fx"
 	"simtix-ticketing/route/event"
+	"simtix-ticketing/route/seat"
 )
 
-var Module = fx.Module("route",
+var Module = fx.Module(
+	"route",
 	fx.Options(
 		fx.Provide(event.NewEventRoute),
+		fx.Provide(seat.NewSeatRoute),
 		fx.Provide(NewRoute),
 	),
 )
@@ -19,9 +22,10 @@ type Route interface {
 	Setup(rg *gin.RouterGroup)
 }
 
-func NewRoute(eventRoute *event.EventRoute) *Routes {
+func NewRoute(eventRoute *event.EventRoute, seatRoute *seat.SeatRoute) *Routes {
 	return &Routes{
 		eventRoute,
+		seatRoute,
 	}
 }
 
