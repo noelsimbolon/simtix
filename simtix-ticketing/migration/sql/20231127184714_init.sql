@@ -23,11 +23,12 @@ CREATE TABLE seats
     created_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ,
     deleted_at TIMESTAMPTZ
+    FOREIGN KEY(event_id) REFERENCES id on events
 );
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE event;
-DROP TABLE seat;
+DROP TABLE seats;
+DROP TABLE events;
 -- +goose StatementEnd
