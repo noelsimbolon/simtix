@@ -2,6 +2,7 @@ package main
 
 import (
 	"go.uber.org/fx"
+	"simtix-ticketing/clients/httpClient"
 	"simtix-ticketing/config"
 	"simtix-ticketing/database"
 	"simtix-ticketing/handler"
@@ -24,6 +25,7 @@ func main() {
 		service.Module,
 		handler.Module,
 		route.Module,
+		httpClient.Module,
 		fx.Invoke(startApp),
 	)
 
