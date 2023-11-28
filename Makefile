@@ -1,4 +1,4 @@
-run: run-client run-ticket run-payment
+run: run-client run-ticket run-payment run-nginx
 
 create-network:
 	docker network create simtix
@@ -12,7 +12,10 @@ run-ticket:
 run-payment:
 	cd simtix-payment && docker-compose up -d --build
 
-stop-all: remove-network stop-client stop-ticket stop-payment
+run-nginx:
+	docker compose up -d --build
+
+stop-all: stop-client stop-ticket stop-payment remove-network
 
 remove-network:
 	docker network remove simtix

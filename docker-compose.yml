@@ -1,119 +1,28 @@
+version: '3.9'
+
 services:
-
-#  simtix-client:
-#    build:
-#      context: ./simtix-client
-#      dockerfile: Dockerfile
-#    depends_on:
-#      simtix-client-db:
-#        condition: service_healthy
-#    networks:
-#      - simtix-microservices
-
-#  simtix-client-db:
-#    container_name: simtix-client-db
-#    hostname: ${PSQL_HOST}
-#    image: postgres:16.1-alpine
-#    ports:
-#      - '8002:5432'
-#    env_file:
-#      - simtix-client/.env
-#    environment:
-#      POSTGRES_DB: ${PSQL_DBNAME}
-#      POSTGRES_USER: ${PSQL_USERNAME}
-#      POSTGRES_PASSWORD: ${PSQL_PASSWORD}
-#    volumes:
-#      - simtix-client-db:/var/lib/postgresql/data
-#    healthcheck:
-#      test: pg_isready
-#      interval: 5s
-#      timeout: 3s
-#      retries: 5
-#    networks:
-#      - simtix-microservices
-
-  simtix-ticketing:
-    build:
-      context: ./simtix-ticketing
-      dockerfile: Dockerfile
+  nginx:
+    image: nginx
     ports:
-      - "8003:8000"
-    env_file:
-      - simtix-ticketing/.env
-    depends_on:
-      simtix-ticketing-db:
-        condition: service_healthy
-    networks:
-      - simtix-microservices
-
-  simtix-ticketing-db:
-    container_name: simtix-ticketing-db
-    hostname: simtix-ticketing-db
-    image: postgres:16.1-alpine
-    ports:
-      - "8004:5432"
-    env_file:
-      - simtix-ticketing/.env
+      - "80:80"
     volumes:
-      - simtix-ticketing-db:/var/lib/postgresql/data
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - simtix
+  simtix-rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
     healthcheck:
-      test: pg_isready
-      interval: 5s
-      timeout: 3s
+      test: [ "CMD", "rabbitmq-diagnostics", "check_running" ]
+      interval: 10s
+      timeout: 5s
       retries: 5
     networks:
-      - simtix-microservices
-
-#  simtix-ticketing-cache:
-#    image: redis:7.2.3-alpine
-#    ports:
-#      - "8005:6379"
-#    networks:
-#      - simtix-microservices
-
-#  simtix-ticketing-seat-queue:
-#    container_name: simtix-ticketing-seat-queue
-#    hostname: simtix-ticketing-seat-queue
-#    image: redis:7.2.3-alpine
-#    ports:
-#      - "8006:6379"
-#    networks:
-#      - simtix-microservices
-
-#  simtix-ticketing-task-queue:
-#    image: rabbitmq:3.12.9-management-alpine
-#    ports:
-#      - '5672:5672'
-#      - '15672:15672'
-#    healthcheck:
-#      test: [ "CMD", "rabbitmq-diagnostics", "check_running" ]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
-#    networks:
-#      - simtix-microservices
-
-#  simtix-payment:
-#    build:
-#      context: ./simtix-payment
-#      dockerfile: Dockerfile
-#    networks:
-#      - simtix-microservices
-
-#  simtix-payment-db:
-#    container_name: simtix-payment-db
-#    hostname: simtix-payment-db
-#    image: postgres:16.1-alpine
-#    ports:
-#      - "8002:5432"
-#    env_file:
-#      - simtix-payment/.env
-#    networks:
-#      - simtix-microservices
+      - simtix
 
 networks:
-  simtix-microservices:
-
-volumes:
-  simtix-client-db:
-  simtix-ticketing-db:
+  simtix:
+    external:
+      true

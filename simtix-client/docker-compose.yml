@@ -22,29 +22,12 @@ services:
     networks:
       - simtix
 
-  simtix-rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - '5672:5672'
-      - '15672:15672'
-    healthcheck:
-      test: [ "CMD", "rabbitmq-diagnostics", "check_running" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - simtix
-
   simtix-client:
     build: .
     env_file:
       - .env
-    ports:
-      - '8000:${APP_PORT}'
     depends_on:
       simtix-client-db:
-        condition: service_healthy
-      simtix-rabbitmq:
         condition: service_healthy
     restart: on-failure
     networks:

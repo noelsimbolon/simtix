@@ -31,7 +31,7 @@ func NewServer(routes *routes.Routes, config *lib.Config) *Server {
 	engine := gin.New()
 	engine.Use(gin.Recovery())
 	engine.Use(middlewares.LoggingMiddleware())
-	routes.Setup(engine.Group("/api"))
+	routes.Setup(engine.Group("/api/payment"))
 	return &Server{
 		engine: engine,
 		port:   config.ServicePort,
