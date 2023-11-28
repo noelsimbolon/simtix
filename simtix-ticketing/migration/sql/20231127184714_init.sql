@@ -22,8 +22,8 @@ CREATE TABLE seats
     status     SEAT_STATUS DEFAULT 'OPEN',
     created_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ,
-    deleted_at TIMESTAMPTZ
-    FOREIGN KEY(event_id) REFERENCES id on events
+    deleted_at TIMESTAMPTZ,
+    FOREIGN KEY(event_id) REFERENCES events(id)
 );
 -- +goose StatementEnd
 
