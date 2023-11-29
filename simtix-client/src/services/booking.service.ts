@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {ConflictException, Injectable, NotFoundException} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Booking } from '../domains/entitites/booking.entity';
@@ -6,6 +6,20 @@ import { UserService } from './user.service';
 import { BookingStatus } from '../domains/entitites/booking.entity';
 import { lastValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
+
+interface IHoldSeat {
+  status: number,
+  data: {
+    seat: {
+      status: string
+      id: string
+    },
+    invoice: {
+      id: string
+      paymentUrl: string
+    }
+  }
+}
 
 @Injectable()
 export class BookingService {
@@ -24,24 +38,24 @@ export class BookingService {
       seatId
     });
 
-    try {
-      const holdSeat = await lastValueFrom(
-          this.httpService.patch(`${process.env.SIMTIX_TICKETING_URL}/seat`, {
-            bookingID: booking.id,
-            seatID: seatId,
-          }),
-      );
+    const holdSeat: IHoldSeat = await lastValueFrom(
+        this.httpService.patch(`${process.env.SIMTIX_TICKETING_URL}/seat`, {
+          bookingID: booking.id,
+          seatID: seatId,
+        }),
+    );
 
-      console.log("HOLD SEAT")
-      console.log(holdSeat)
-    } catch (error) {
-      console.error(error)
+    if (holdSeat.status != 200) {
+      await this.remove(booking.id)
+      throw new ConflictException('Seat not available!')
     }
 
-    // Call ticket service API for booking, constants below are only dummy
-    const invoiceNumber = 'f1f5b363-446d-4185-a872-66dadfb31153';
-    const invoiceUrl =
-      'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+    const {id: invoiceId, paymentUrl} = holdSeat.data.invoice
+
+    booking.invoiceNumber = invoiceId;
+    booking.invoiceUrl = paymentUrl;
+
+    await this.bookingRepository.save(booking);
 
     const { bookingUrl, deletedAt, ...returnData } = booking;
 
@@ -95,5 +109,15 @@ export class BookingService {
     await this.bookingRepository.save(booking);
 
     return booking;
+  }
+
+  async remove(id: string) {
+    const booking = await this.findOne(id);
+
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+
+    return await this.bookingRepository.softDelete(id);
   }
 }
