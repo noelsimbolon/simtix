@@ -9,4 +9,4 @@ RUN go build -o /app/bin/worker ./cmd/worker/worker.go
 
 EXPOSE 3003
 
-CMD ["./bin/server", "./bin/worker"]
+CMD ["./run.sh"]
