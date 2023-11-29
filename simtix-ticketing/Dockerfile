@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY . .
 
+RUN chmod 700 public/tickets/
+
 RUN go build -o /app/bin/server ./cmd/server/server.go
 RUN go build -o /app/bin/worker ./cmd/worker/worker.go
 
