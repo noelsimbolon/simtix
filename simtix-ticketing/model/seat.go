@@ -20,5 +20,5 @@ type Seat struct {
 	SeatNumber int             `json:"seatNumber"`
 	Price      decimal.Decimal `json:"price"`
 	Event      Event           `json:"event"`
-	BookingID  string          `json:"bookingID"`
+	BookingID  *string          `json:"bookingID"`
 }

@@ -159,7 +159,7 @@ func (s *SeatServiceImpl) BookSeat(updateSeatStatusDto dto.BookSeatDto) (
 	}
 	// what to do with invoice?
 	existingSeat.Status = model.SEATSTATUS_ONGOING
-	existingSeat.BookingID = updateSeatStatusDto.BookingID
+	existingSeat.BookingID = &updateSeatStatusDto.BookingID
 	dbErr := s.repository.Save(&existingSeat).Error
 	if dbErr != nil {
 		log.Print(dbErr)
