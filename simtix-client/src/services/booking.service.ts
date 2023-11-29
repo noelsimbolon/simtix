@@ -38,30 +38,31 @@ export class BookingService {
       seatId
     });
 
-    const holdSeat: IHoldSeat = await lastValueFrom(
-        this.httpService.patch(`${process.env.SIMTIX_TICKETING_URL}/seat`, {
-          bookingID: booking.id,
-          seatID: seatId,
-        }),
-    );
+    try {
+      const holdSeat: IHoldSeat = await lastValueFrom(
+          this.httpService.patch(`${process.env.SIMTIX_TICKETING_URL}/seat`, {
+            bookingID: booking.id,
+            seatID: seatId,
+          }),
+      );
 
-    if (holdSeat.status != 200) {
+      const {id: invoiceId, paymentUrl} = holdSeat.data.invoice
+
+      booking.invoiceNumber = invoiceId;
+      booking.invoiceUrl = paymentUrl;
+
+      await this.bookingRepository.save(booking);
+
+      const { bookingUrl, deletedAt, ...returnData } = booking;
+
+      return {
+        ...returnData,
+      };
+    } catch (error) {
+      console.error(error)
       await this.remove(booking.id)
       throw new ConflictException('Seat not available!')
     }
-
-    const {id: invoiceId, paymentUrl} = holdSeat.data.invoice
-
-    booking.invoiceNumber = invoiceId;
-    booking.invoiceUrl = paymentUrl;
-
-    await this.bookingRepository.save(booking);
-
-    const { bookingUrl, deletedAt, ...returnData } = booking;
-
-    return {
-      ...returnData,
-    };
   }
 
   async findAll(userId: string) {
