@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/hibiken/asynq"
+	"gorm.io/gorm"
 	"log"
 	"simtix/lib"
 	"simtix/utils/logger"
@@ -15,9 +16,10 @@ type WorkerServer struct {
 	srv            *asynq.Server
 	router         *asynq.ServeMux
 	paymentHandler *handlers.MakePaymentHandler
+	db             *gorm.DB
 }
 
-func NewServer(config *lib.Config, paymentHandler *handlers.MakePaymentHandler) *WorkerServer {
+func NewServer(config *lib.Config, paymentHandler *handlers.MakePaymentHandler, db *lib.Database) *WorkerServer {
 	var server WorkerServer
 	redisConnOpt := asynq.RedisClientOpt{Addr: config.RedisAddress}
 	server.srv = asynq.NewServer(
@@ -35,7 +37,7 @@ func NewServer(config *lib.Config, paymentHandler *handlers.MakePaymentHandler) 
 
 	server.router = asynq.NewServeMux()
 	server.router.HandleFunc(tasks.TypeMakePaymentTask, paymentHandler.HandleMakePaymentTask())
-
+	server.db = db.DB
 	return &server
 }
 

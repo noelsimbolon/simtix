@@ -3,55 +3,55 @@ package seat
 import (
 	"github.com/pkg/errors"
 	"net/http"
-	"simtix-ticketing/error"
+	"simtix-ticketing/utils"
 )
 
-var DbErrGetSeats = &error.Error{
+var DbErrGetSeats = &utils.Error{
 	StatusCode: http.StatusInternalServerError,
 	Err:        errors.New("Unexpected database error when getting seats."),
 }
 
-var DbErrGetSeat = &error.Error{
+var DbErrGetSeat = &utils.Error{
 	StatusCode: http.StatusInternalServerError,
 	Err:        errors.New("Unexpected database error when getting seat."),
 }
 
-var ErrSeatNotFound = &error.Error{
+var ErrSeatNotFound = &utils.Error{
 	StatusCode: http.StatusNotFound,
 	Err:        errors.New("Seat not found."),
 }
 
-var ErrSeatExists = &error.Error{
+var ErrSeatExists = &utils.Error{
 	StatusCode: http.StatusBadRequest,
 	Err:        errors.New("Seat already exist"),
 }
 
-var DbErrCreateSeat = &error.Error{
+var DbErrCreateSeat = &utils.Error{
 	StatusCode: http.StatusInternalServerError,
 	Err:        errors.New("Unexpected database error when creating seat."),
 }
 
-var ErrSeatNotAvailable = &error.Error{
+var ErrSeatNotAvailable = &utils.Error{
 	StatusCode: http.StatusBadRequest,
 	Err:        errors.New("Seat not available for booking."),
 }
 
-var ErrExternalCallFailed = &error.Error{
+var ErrExternalCallFailed = &utils.Error{
 	StatusCode: http.StatusInternalServerError,
 	Err:        errors.New("Failed to hold seat."),
 }
 
-var ErrMakePaymentFailed = &error.Error{
+var ErrMakePaymentFailed = &utils.Error{
 	StatusCode: http.StatusInternalServerError,
 	Err:        errors.New("Failed to make payment."),
 }
 
-var DbErrUpdateSeat = &error.Error{
+var DbErrUpdateSeat = &utils.Error{
 	StatusCode: http.StatusInternalServerError,
 	Err:        errors.New("Unexpected database error when updating seat."),
 }
 
-var ErrEventNotExist = &error.Error{
+var ErrEventNotExist = &utils.Error{
 	StatusCode: http.StatusInternalServerError,
 	Err:        errors.New("Event doesn't exist"),
 }

@@ -20,7 +20,7 @@ var Module = fx.Module("server", fx.Provide(NewServer))
 type Server struct {
 	engine *gin.Engine
 	port   int
-	routes  *route.Routes
+	routes *route.Routes
 }
 
 func NewServer(config *config.Config, routes *route.Routes) *Server {
@@ -31,7 +31,7 @@ func NewServer(config *config.Config, routes *route.Routes) *Server {
 
 	return &Server{
 		engine: engine,
-		port: config.ServicePort,
+		port:   config.ServicePort,
 		routes: routes,
 	}
 }

@@ -16,9 +16,15 @@ type Config struct {
 	ServiceName     string `envconfig:"SERVICE_NAME" required:"true"`
 	ServicePort     int    `envconfig:"SERVICE_PORT" default:"8000" required:"true"`
 	PaymentEndpoint string `envconfig:"PAYMENT_ENDPOINT" required:"true"`
+	WebhookSecret   string `envconfig:"WEBHOOK_SECRET" required:"true"`
+
+	AmqpUser     string `envconfig:"AMQP_USER" required:"true"`
+	AmqpPassword string `envconfig:"AMQP_PASSWORD" required:"true"`
+	AmqpHost     string `envconfig:"AMQP_HOST" required:"true"`
+	AmqpPort     int    `envconfig:"AMQP_PORT" required:"true"`
 
 	RedisHost string `envconfig:"REDIS_HOST"`
-	RedisPort string `envconfig:"REDIS_PORT"`
+	RedisPort int    `envconfig:"REDIS_PORT"`
 
 	DatabaseHost     string `envconfig:"DB_HOST" required:"true"`
 	DatabasePort     int    `envconfig:"DB_PORT" required:"true"`

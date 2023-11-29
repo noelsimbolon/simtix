@@ -1,4 +1,4 @@
-package seat
+package dto
 
 import "github.com/shopspring/decimal"
 
@@ -9,9 +9,16 @@ type CreateSeatDto struct {
 	Price      decimal.Decimal `json:"price"`
 }
 
+type InvoiceStatus string
+
+const (
+	INVOICESTATUS_PAID   InvoiceStatus = "PAID"
+	INVOICESTATUS_FAILED InvoiceStatus = "FAILED"
+)
+
 type UpdateSeatStatusDto struct {
-	SeatID string     `json:"seatID" binding:"required"`
-	Status SeatStatus `json:"status" binding:"required"`
+	BookingID     string        `json:"seatID" binding:"required"`
+	InvoiceStatus InvoiceStatus `json:"status" binding:"required"`
 }
 
 type BookSeatDto struct {

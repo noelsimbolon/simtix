@@ -38,6 +38,8 @@ services:
 
   simtix-ticketing-redis:
     image: redis:latest
+    ports:
+      - "6378:6379"
     networks:
       - simtix
     env_file:

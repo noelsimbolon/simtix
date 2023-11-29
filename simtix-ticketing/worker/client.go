@@ -1,7 +1,9 @@
 package worker
 
 import (
+	"fmt"
 	"github.com/hibiken/asynq"
+	"simtix-ticketing/config"
 )
 
 //var Module = fx.Module("workerClient", fx.Options(fx.Provide(NewWorkerClient)))
@@ -19,8 +21,8 @@ func (w *WorkerClient) Enqueue(t *asynq.Task, opts ...asynq.Option) (*asynq.Task
 }
 
 // to do: take from config
-func NewWorkerClient() *WorkerClient {
-	client := asynq.NewClient(asynq.RedisClientOpt{Addr: "localhost:6379"})
+func NewWorkerClient(config *config.Config) *WorkerClient {
+	client := asynq.NewClient(asynq.RedisClientOpt{Addr: fmt.Sprintf("%s:%d", config.RedisHost, config.RedisPort)})
 	return &WorkerClient{
 		client: client,
 	}

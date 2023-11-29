@@ -21,4 +21,5 @@ func (r SeatRoute) Setup(rg *gin.RouterGroup) {
 	seatRoute.GET("/:seatID", r.seatHandler.GetSeatByID)
 	seatRoute.POST("/", r.seatHandler.PostSeat)
 	seatRoute.PATCH("/", r.seatHandler.PatchSeatForBooking)
+	seatRoute.POST("/webhook", r.seatHandler.SeatWebhook)
 }

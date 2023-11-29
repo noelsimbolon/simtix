@@ -1,7 +1,9 @@
 package amqp
 
 import (
+	"fmt"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"simtix-ticketing/config"
 )
 
 type AmqpClient struct {
@@ -9,8 +11,13 @@ type AmqpClient struct {
 	channel *amqp.Channel
 }
 
-func NewAmqpClient() (*AmqpClient, error) {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672")
+func NewAmqpClient(config *config.Config) (*AmqpClient, error) {
+	conn, err := amqp.Dial(
+		fmt.Sprintf(
+			"amqp://%s:%s@%s:%d", config.AmqpUser, config.AmqpPassword,
+			config.AmqpHost, config.AmqpPort,
+		),
+	)
 	if err != nil {
 		return nil, err
 	}

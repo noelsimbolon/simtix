@@ -18,6 +18,7 @@ type Config struct {
 	GracefullyDuration time.Duration `envconfig:"GRACEFULLY_DURATION" default:"5s"`
 	RedisAddress       string        `envconfig:"REDIS_ADDRESS"`
 	TicketingEndpoint  string        `envconfig:"TICKETING_ENDPOINT"`
+	TicketingSecret    string        `envconfig:"TICKETING_SECRET"`
 
 	LogLevel         string `envconfig:"LOG_LEVEL" default:"INFO"`
 	DatabaseHost     string `envconfig:"DB_HOST" required:"true"`
