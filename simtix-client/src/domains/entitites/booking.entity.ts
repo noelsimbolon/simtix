@@ -37,10 +37,10 @@ export class Booking {
   })
   status: BookingStatus;
 
-  @Column({ type: 'uuid', name: 'invoice_number' })
+  @Column({ type: 'uuid', name: 'invoice_number', nullable: true })
   invoiceNumber: string;
 
-  @Column({ type: 'text', name: 'invoice_url' })
+  @Column({ type: 'text', name: 'invoice_url', nullable: true })
   invoiceUrl: string;
 
   @Column({ type: 'text', name: 'booking_url', nullable: true })
