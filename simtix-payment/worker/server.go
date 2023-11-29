@@ -6,6 +6,7 @@ import (
 	"github.com/hibiken/asynq"
 	"gorm.io/gorm"
 	"log"
+	"simtix/clients/ticketing"
 	"simtix/lib"
 	"simtix/utils/logger"
 	"simtix/worker/handlers"
@@ -54,7 +55,21 @@ func (s *WorkerServer) HandleError(ctx context.Context, task *asynq.Task, err er
 	if retried >= maxRetry {
 		err = fmt.Errorf("retry exhausted for task %s: %w", task.Type(), err)
 		if task.Type() == tasks.TypeMakePaymentTask {
-			err = s.paymentHandler.HandleError(task)
+			// load manually because injection doesnt work
+			config, err := lib.NewConfig()
+			if err != nil {
+				logger.Log.Error(err.Error())
+			}
+			db, err := lib.NewDatabase(config)
+			if err != nil {
+				logger.Log.Error(err.Error())
+			}
+			ticketingClient := ticketing.NewTicketingClient(config)
+			paymentHandler := handlers.NewMakePaymentHandler(db, ticketingClient)
+			err = paymentHandler.HandleError(task)
+			if err != nil {
+				logger.Log.Error(err)
+			}
 		}
 		logger.Log.Error(err)
 	}

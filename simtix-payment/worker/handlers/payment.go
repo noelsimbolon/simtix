@@ -43,13 +43,13 @@ func (h *MakePaymentHandler) HandleMakePaymentTask() asynq.HandlerFunc {
 			),
 		)
 
+		paymentTaskCount += 1
+
 		// 20% failure simulation
-		if paymentTaskCount%5 == 0 {
+		if paymentTaskCount%5 == 1 {
 			logger.Log.Error("Payment processing failed")
 			return errors.New("Payment processing failed")
 		}
-
-		paymentTaskCount += 1
 
 		err = h.UpdateInvoiceStatus(payload.InvoiceID, models.INVOICESTATUS_PAID)
 		if err != nil {
