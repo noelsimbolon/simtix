@@ -45,8 +45,8 @@ func (h *MakePaymentHandler) HandleMakePaymentTask() asynq.HandlerFunc {
 
 		paymentTaskCount += 1
 
-		// 20% failure simulation
-		if paymentTaskCount%5 == 1 {
+		// 10% failure rate simulation
+		if paymentTaskCount%10 == 1 {
 			logger.Log.Error("Payment processing failed")
 			return errors.New("Payment processing failed")
 		}
