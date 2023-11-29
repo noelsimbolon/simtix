@@ -27,9 +27,11 @@ func NewGeneratePdfHandler(amqpClient *amqp.AmqpClient) *GeneratePdfHandler {
 // to do pass the booking object here
 func (h *GeneratePdfHandler) HandleGeneratePdf() asynq.HandlerFunc {
 	return func(ctx context.Context, t *asynq.Task) error {
+		log.Print("HANDLEEEE PDFFFFFF")
 		payload, err := h.unmarshalPayload(t)
 
 		if err != nil {
+			log.Print("DISIIINIII ERORRRRRR")
 			return err
 		}
 
@@ -48,6 +50,7 @@ func (h *GeneratePdfHandler) HandleGeneratePdf() asynq.HandlerFunc {
 
 		err = h.generateQrCode(pdf)
 		if err != nil {
+			log.Print("DISIIINIII ERORRRRRR 2")
 			return err
 		}
 
@@ -55,6 +58,7 @@ func (h *GeneratePdfHandler) HandleGeneratePdf() asynq.HandlerFunc {
 		pdfPath := fmt.Sprintf("public/tickets/BOOKING_%s_%s.pdf", timestamp, payload.BookingID)
 		err = pdf.OutputFileAndClose(pdfPath)
 		if err != nil {
+			log.Print("DISIIINIII ERORRRRRR 3")
 			return err
 		}
 
