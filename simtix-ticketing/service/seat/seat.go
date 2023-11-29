@@ -119,8 +119,10 @@ func (s *SeatServiceImpl) UpdateSeatStatus(updateSeatStatusDto dto.UpdateSeatSta
 		return nil, DbErrCreateSeat
 	}
 
-	s.enqueuePdfTask(existingSeat, updateSeatStatusDto.BookingID)
-
+	enqueueErr := s.enqueuePdfTask(existingSeat, updateSeatStatusDto.BookingID)
+	if enqueueErr != nil {
+		return nil, err
+	}
 	return existingSeat, nil
 }
 

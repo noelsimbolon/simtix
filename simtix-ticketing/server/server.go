@@ -27,7 +27,7 @@ func NewServer(config *config.Config, routes *route.Routes) *Server {
 	engine := gin.New()
 	engine.Use(gin.Recovery())
 
-	routes.Setup(engine.Group("/api"))
+	routes.Setup(engine.Group("/api/ticketing"))
 
 	return &Server{
 		engine: engine,

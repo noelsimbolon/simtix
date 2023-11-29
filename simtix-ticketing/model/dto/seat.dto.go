@@ -17,7 +17,7 @@ const (
 )
 
 type UpdateSeatStatusDto struct {
-	BookingID     string        `json:"seatID" binding:"required"`
+	BookingID     string        `json:"bookingID" binding:"required"`
 	InvoiceStatus InvoiceStatus `json:"status" binding:"required"`
 }
 

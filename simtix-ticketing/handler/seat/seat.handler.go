@@ -7,9 +7,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"simtix-ticketing/config"
-	seat2 "simtix-ticketing/model/dto"
+	"simtix-ticketing/model/dto"
 	"simtix-ticketing/service/seat"
 )
 
@@ -63,7 +64,7 @@ func (h *SeatHandlerImpl) GetSeatByID(c *gin.Context) {
 }
 
 func (h *SeatHandlerImpl) PostSeat(c *gin.Context) {
-	var dto seat2.CreateSeatDto
+	var dto dto.CreateSeatDto
 	err := c.ShouldBindJSON(&dto)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -81,7 +82,7 @@ func (h *SeatHandlerImpl) PostSeat(c *gin.Context) {
 }
 
 func (h *SeatHandlerImpl) PatchSeatForBooking(c *gin.Context) {
-	var dto seat2.BookSeatDto
+	var dto dto.BookSeatDto
 	err := c.ShouldBindJSON(&dto)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -100,24 +101,29 @@ func (h *SeatHandlerImpl) PatchSeatForBooking(c *gin.Context) {
 
 func (h *SeatHandlerImpl) SeatWebhook(c *gin.Context) {
 	signature := c.GetHeader("X-Webhook-Signature")
+	log.Print(signature)
 	body, err := c.GetRawData()
 	if err != nil {
+		log.Print(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
 		return
 	}
 
 	if err := h.checkWebhookSignature(signature, body); err != nil {
+		log.Print(err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid webhook signature"})
 		return
 	}
 
-	var payload seat2.UpdateSeatStatusDto
+	var payload dto.UpdateSeatStatusDto
 	err = json.Unmarshal(body, &payload)
 	if err != nil {
+		log.Print(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
+	log.Print(payload)
+	log.Print(h.webhookSecret)
 	_, custErr := h.service.UpdateSeatStatus(payload)
 	if custErr != nil {
 		c.JSON(custErr.StatusCode, gin.H{"error": custErr.Err.Error()})

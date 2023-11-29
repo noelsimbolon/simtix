@@ -7,9 +7,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"simtix/lib"
 	"simtix/models"
+	"simtix/utils/logger"
 )
 
 type TicketingClient struct {
@@ -19,7 +21,8 @@ type TicketingClient struct {
 
 func NewTicketingClient(config *lib.Config) *TicketingClient {
 	return &TicketingClient{
-		baseEndpoint: config.TicketingEndpoint,
+		baseEndpoint:    config.TicketingEndpoint,
+		ticketingSecret: config.TicketingSecret,
 	}
 }
 
@@ -29,12 +32,15 @@ type PutBookingPayload struct {
 }
 
 func (t *TicketingClient) PutBooking(invoice *models.Invoice) error {
+	log.Print(invoice)
+	log.Print(t.ticketingSecret)
 	invoiceJSON, err := json.Marshal(invoice)
 	if err != nil {
 		return fmt.Errorf("failed to marshal invoice to JSON: %v", err)
 	}
 
 	url := fmt.Sprintf("%s/seat/webhook", t.baseEndpoint)
+	logger.Log.Info(url)
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(invoiceJSON))
 	if err != nil {

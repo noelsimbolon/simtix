@@ -76,8 +76,10 @@ func (h *MakePaymentHandler) UpdateInvoiceStatus(invoiceID string, status models
 	if err != nil {
 		return err
 	}
-	// to do: uncomment and test
-	h.ticketingClient.PutBooking(&invoice)
+	err = h.ticketingClient.PutBooking(&invoice)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
