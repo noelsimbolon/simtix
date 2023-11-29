@@ -27,7 +27,7 @@ cur_ticket = conn_ticket.cursor()
 for i in range(5):
     email = f'user{i+1}@example.com'
     name = f'User {i+1}'
-    password = 'password'
+    password = '$2b$10$fBFDVg/UXudJ82miGq3c5OSc.NQKuGTFVWUxSpNzx19KiABm6TJ0i'
 
     cur_client.execute(
         "INSERT INTO users (email, name, password) VALUES (%s, %s, %s)",
