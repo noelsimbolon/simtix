@@ -15,7 +15,7 @@ import (
 )
 
 type SeatHandler interface {
-	GetSeatsByEvent(c *gin.Context)
+	GetSeats(c *gin.Context)
 	GetSeatByID(c *gin.Context)
 	PostSeat(c *gin.Context)
 	SeatWebhook(c *gin.Context)
