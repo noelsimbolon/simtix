@@ -12,9 +12,8 @@ import { User } from './user.entity';
 
 export enum BookingStatus {
   ONGOING = 'ONGOING',
-  PAID = 'PAID',
-  FAILED = 'FAILED',
-  CANCELLED = 'CANCELLED',
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED'
 }
 
 @Entity({ name: 'bookings' })
