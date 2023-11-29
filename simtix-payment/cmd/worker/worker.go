@@ -28,8 +28,7 @@ func main() {
 		clients.Module,
 		worker.Module,
 		fx.Invoke(startServer),
-		//fx.NopLogger,
+		fx.NopLogger,
 	)
 	app.Run()
-	logger.Log.Info("oii")
 }

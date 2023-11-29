@@ -29,6 +29,7 @@ func main() {
 		route.Module,
 		httpClient.Module,
 		fx.Invoke(startApp),
+		fx.NopLogger,
 	)
 
 	app.Run()

@@ -24,7 +24,7 @@ func main() {
 		amqp.Module,
 		handlers.Module,
 		fx.Invoke(startServer),
-		//fx.NopLogger,
+		fx.NopLogger,
 	)
 	app.Run()
 }

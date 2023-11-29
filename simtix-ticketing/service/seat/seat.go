@@ -17,7 +17,7 @@ import (
 )
 
 type SeatService interface {
-	GetSeatsByEventID(eventID string) ([]model.Seat, *utils.Error)
+	GetSeats(eventID string, bookingID string) ([]model.Seat, *utils.Error)
 	GetSeatByID(id string) (*model.Seat, *utils.Error)
 	CreateSeat(dto dto.CreateSeatDto) (*model.Seat, *utils.Error)
 	BookSeat(updateSeatStatusDto dto.BookSeatDto) (*dao.BookSeatDao, *utils.Error)
@@ -43,9 +43,16 @@ func NewSeatService(
 	}
 }
 
-func (s *SeatServiceImpl) GetSeatsByEventID(eventID string) ([]model.Seat, *utils.Error) {
+func (s *SeatServiceImpl) GetSeats(eventID string, bookingID string) ([]model.Seat, *utils.Error) {
 	var seats []model.Seat
-	err := s.repository.Where("event_id = ?", eventID).Find(&seats).Error
+	query := s.repository
+	if eventID != "" {
+		query = query.Where("event_id = ?", eventID)
+	}
+	if bookingID != "" {
+		query = query.Where("booking_id = ?", bookingID)
+	}
+	err := query.Find(&seats).Error
 	if err != nil {
 		return nil, DbErrGetSeats
 	}
@@ -115,6 +122,7 @@ func (s *SeatServiceImpl) CreateSeat(seatDto dto.CreateSeatDto) (*model.Seat, *u
 func (s *SeatServiceImpl) UpdateSeatStatus(updateSeatStatusDto dto.UpdateSeatStatusDto) (
 	*model.Seat, *utils.Error,
 ) {
+	var errReason *string
 	existingSeat, err := s.GetSeatByBookingID(updateSeatStatusDto.BookingID)
 	if err != nil {
 		return nil, err
@@ -124,6 +132,8 @@ func (s *SeatServiceImpl) UpdateSeatStatus(updateSeatStatusDto dto.UpdateSeatSta
 		existingSeat.Status = model.SEATSTATUS_BOOKED
 	} else if updateSeatStatusDto.InvoiceStatus == dto.INVOICESTATUS_FAILED {
 		existingSeat.Status = model.SEATSTATUS_OPEN
+		errReasonStr := " failure during processing payment"
+		errReason = &errReasonStr
 	}
 
 	dbErr := s.repository.Save(&existingSeat).Error
@@ -131,7 +141,7 @@ func (s *SeatServiceImpl) UpdateSeatStatus(updateSeatStatusDto dto.UpdateSeatSta
 		return nil, DbErrCreateSeat
 	}
 
-	enqueueErr := s.enqueuePdfTask(existingSeat, updateSeatStatusDto.BookingID)
+	enqueueErr := s.enqueuePdfTask(existingSeat, updateSeatStatusDto.BookingID, errReason)
 	if enqueueErr != nil {
 		return nil, err
 	}
@@ -150,11 +160,12 @@ func (s *SeatServiceImpl) BookSeat(updateSeatStatusDto dto.BookSeatDto) (
 		return nil, ErrSeatNotAvailable
 	}
 	if !s.checkSeatExternally(updateSeatStatusDto.SeatID) {
+		errReason := "failure when making external call to hold seat"
+		s.enqueuePdfTask(existingSeat, updateSeatStatusDto.BookingID, &errReason)
 		return nil, ErrExternalCallFailed
 	}
 	invoice, err := s.makeInvoice(existingSeat.Price, updateSeatStatusDto.BookingID)
 	if err != nil {
-		log.Print(err)
 		return nil, err
 	}
 	// what to do with invoice?
@@ -162,7 +173,6 @@ func (s *SeatServiceImpl) BookSeat(updateSeatStatusDto dto.BookSeatDto) (
 	existingSeat.BookingID = &updateSeatStatusDto.BookingID
 	dbErr := s.repository.Save(&existingSeat).Error
 	if dbErr != nil {
-		log.Print(dbErr)
 		return nil, DbErrCreateSeat
 	}
 
@@ -196,11 +206,13 @@ func (s *SeatServiceImpl) makeInvoice(amount decimal.Decimal, bookingID string) 
 	return invoice, nil
 }
 
-func (s *SeatServiceImpl) enqueuePdfTask(seat *model.Seat, bookingID string) error {
+func (s *SeatServiceImpl) enqueuePdfTask(seat *model.Seat, bookingID string, errReason *string) error {
 	payload := tasks.GeneratePdfPayload{
-		BookingID: bookingID,
-		Seat:      *seat,
+		BookingID:   bookingID,
+		Seat:        *seat,
+		ErrorReason: errReason,
 	}
+
 	pdfTask, err := tasks.NewGeneratePdfTask(payload)
 	if err != nil {
 		return err
