@@ -10,6 +10,7 @@ import (
 	"github.com/skip2/go-qrcode"
 	"log"
 	"simtix-ticketing/clients/amqp"
+	"simtix-ticketing/model"
 	"simtix-ticketing/worker/tasks"
 	"time"
 )
@@ -27,38 +28,30 @@ func NewGeneratePdfHandler(amqpClient *amqp.AmqpClient) *GeneratePdfHandler {
 // to do pass the booking object here
 func (h *GeneratePdfHandler) HandleGeneratePdf() asynq.HandlerFunc {
 	return func(ctx context.Context, t *asynq.Task) error {
-		log.Print("HANDLEEEE PDFFFFFF")
 		payload, err := h.unmarshalPayload(t)
 
 		if err != nil {
-			log.Print("DISIIINIII ERORRRRRR")
 			return err
 		}
 
-		pdf := gofpdf.New("P", "mm", "A4", "")
+		var pdf *gofpdf.Fpdf
 
-		pdf.AddPage()
-		pdf.SetFont("Arial", "B", 16)
-		pdf.Cell(40, 10, "Ticket Booking Successful")
-		pdf.Ln(10)
-
-		pdf.SetFont("Arial", "B", 14)
-		pdf.Cell(40, 10, "BOOKING DETAILS")
-		pdf.Ln(10)
-
-		h.addTicketDetails(pdf, payload)
-
-		err = h.generateQrCode(pdf)
-		if err != nil {
-			log.Print("DISIIINIII ERORRRRRR 2")
-			return err
+		if payload.Seat.Status == model.SEATSTATUS_BOOKED {
+			pdf, err = h.generateSuccessfulPdf(payload)
+			if err != nil {
+				return err
+			}
+		} else {
+			pdf, err = h.generateFailedPdf(payload)
+			if err != nil {
+				return err
+			}
 		}
 
 		timestamp := time.Now().Format("2006-01-02_15-04-05")
-		pdfPath := fmt.Sprintf("public/tickets/BOOKING_%s_%s.pdf", timestamp, payload.BookingID)
+		pdfPath := fmt.Sprintf("static/tickets/BOOKING_%s_%s.pdf", timestamp, payload.BookingID)
 		err = pdf.OutputFileAndClose(pdfPath)
 		if err != nil {
-			log.Print("DISIIINIII ERORRRRRR 3")
 			return err
 		}
 
@@ -125,4 +118,53 @@ func (h *GeneratePdfHandler) unmarshalPayload(t *asynq.Task) (*tasks.GeneratePdf
 		return nil, err
 	}
 	return &payload, nil
+}
+
+func (h *GeneratePdfHandler) generateFailedPdf(payload *tasks.GeneratePdfPayload) (
+	*gofpdf.Fpdf,
+	error,
+) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", 16)
+	pdf.Cell(40, 10, "Ticket Booking Failed")
+	pdf.Ln(10)
+
+	pdf.SetFont("Arial", "B", 14)
+	pdf.Cell(40, 10, "BOOKING DETAILS")
+	pdf.Ln(10)
+
+	h.addTicketDetails(pdf, payload)
+
+	// Add the specific failure message
+	pdf.Ln(10)
+	pdf.SetFont("Arial", "", 12)
+	pdf.Cell(40, 10, "Booking failed due to error in processing payment")
+
+	return pdf, nil
+}
+
+func (h *GeneratePdfHandler) generateSuccessfulPdf(payload *tasks.GeneratePdfPayload) (
+	*gofpdf.Fpdf,
+	error,
+) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", 16)
+	pdf.Cell(40, 10, "Ticket Booking Successful")
+	pdf.Ln(10)
+
+	pdf.SetFont("Arial", "B", 14)
+	pdf.Cell(40, 10, "BOOKING DETAILS")
+	pdf.Ln(10)
+
+	h.addTicketDetails(pdf, payload)
+
+	err := h.generateQrCode(pdf)
+	if err != nil {
+		return nil, err
+	}
+	return pdf, nil
 }

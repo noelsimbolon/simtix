@@ -26,7 +26,7 @@ type Server struct {
 func NewServer(config *config.Config, routes *route.Routes) *Server {
 	engine := gin.New()
 	engine.Use(gin.Recovery())
-
+	engine.Static("/static", "./static")
 	routes.Setup(engine.Group("/api/ticketing"))
 
 	return &Server{

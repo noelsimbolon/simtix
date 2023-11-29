@@ -11,9 +11,8 @@ const (
 )
 
 type GeneratePdfPayload struct {
-	BookingID     string     `json:"bookingID"`
-	Seat          model.Seat `json:"seat"`
-	BookingStatus string     `json:"bookingStatus"`
+	BookingID string     `json:"bookingID"`
+	Seat      model.Seat `json:"seat"`
 }
 
 func NewGeneratePdfTask(payload GeneratePdfPayload) (*asynq.Task, error) {
