@@ -64,6 +64,18 @@ func (s *SeatServiceImpl) GetSeatByID(id string) (*model.Seat, *utils.Error) {
 	return &seat, nil
 }
 
+func (s *SeatServiceImpl) GetSeatByBookingID(id string) (*model.Seat, *utils.Error) {
+	var seat model.Seat
+	err := s.repository.Preload("Event").Where("booking_id = ?", id).First(&seat).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrSeatNotFound
+		}
+		return nil, DbErrGetSeat
+	}
+	return &seat, nil
+}
+
 func (s *SeatServiceImpl) CreateSeat(seatDto dto.CreateSeatDto) (*model.Seat, *utils.Error) {
 	var event model.Event
 	dbErr := s.repository.Where("id = ?", seatDto.EventID).First(&event).Error
@@ -103,7 +115,7 @@ func (s *SeatServiceImpl) CreateSeat(seatDto dto.CreateSeatDto) (*model.Seat, *u
 func (s *SeatServiceImpl) UpdateSeatStatus(updateSeatStatusDto dto.UpdateSeatStatusDto) (
 	*model.Seat, *utils.Error,
 ) {
-	existingSeat, err := s.GetSeatByID(updateSeatStatusDto.BookingID)
+	existingSeat, err := s.GetSeatByBookingID(updateSeatStatusDto.BookingID)
 	if err != nil {
 		return nil, err
 	}
@@ -147,6 +159,7 @@ func (s *SeatServiceImpl) BookSeat(updateSeatStatusDto dto.BookSeatDto) (
 	}
 	// what to do with invoice?
 	existingSeat.Status = model.SEATSTATUS_ONGOING
+	existingSeat.BookingID = updateSeatStatusDto.BookingID
 	dbErr := s.repository.Save(&existingSeat).Error
 	if dbErr != nil {
 		log.Print(dbErr)

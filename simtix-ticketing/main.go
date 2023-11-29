@@ -48,7 +48,7 @@ func main() {
 	}
 
 	timestamp := time.Now().Format("2006-01-02_15-04-05")
-	pdfPath := fmt.Sprintf("public/tickets/BOOKING_%s_%s.pdf", timestamp, "AKSNXFJL")
+	pdfPath := fmt.Sprintf("static/tickets/BOOKING_%s_%s.pdf", timestamp, "AKSNXFJL")
 	err = pdf.OutputFileAndClose(pdfPath)
 	if err != nil {
 		log.Fatal(err)
