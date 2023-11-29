@@ -7,7 +7,7 @@ run-client:
 	cd simtix-client && docker-compose up -d --build
 
 run-ticket:
-	cd simtix-ticketing
+	cd simtix-ticketing && docker-compose up -d --build
 
 run-payment:
 	cd simtix-payment && docker-compose up -d --build
@@ -15,7 +15,7 @@ run-payment:
 run-nginx:
 	docker compose up -d --build
 
-stop-all: stop-client stop-ticket stop-payment remove-network
+stop-all: stop-client stop-ticket stop-payment stop-nginx
 
 remove-network:
 	docker network remove simtix
@@ -24,7 +24,10 @@ stop-client:
 	cd simtix-client && docker-compose down
 
 stop-ticket:
-	cd simtix-ticketing
+	cd simtix-ticketing && docker-compose down
 
 stop-payment:
 	cd simtix-payment && docker-compose down
+
+stop-nginx:
+	docker-compose down

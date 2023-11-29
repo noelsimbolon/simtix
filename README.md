@@ -1,14 +1,23 @@
 ## Overview
 Simtix is a ticketing and payment simulation application implemented using the microservice architecture.
 
+## Prerun
+- For each folder, copy .env.docker to .env
+
 ## How to Run?
 ### Create the network if `simtix` network doesn't exist
 ```bash
 make create-network
 ```
+
 ### Run the services
 ```bash
 make
+```
+
+### To stop
+```bash
+make stop-all
 ```
 
 ## Tech Stack
