@@ -1,4 +1,4 @@
-run: run-client run-ticket run-payment run-nginx
+run: run-nginx run-client run-ticket run-payment
 
 create-network:
 	docker network create simtix
