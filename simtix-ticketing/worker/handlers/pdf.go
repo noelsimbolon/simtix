@@ -48,7 +48,7 @@ func (h *GeneratePdfHandler) HandleGeneratePdf() asynq.HandlerFunc {
 		}
 
 		timestamp := time.Now().Format("2006-01-02_15-04-05")
-		pdfPath := fmt.Sprintf("http://localhost/static/tickets/BOOKING_%s_%s.pdf", timestamp, payload.BookingID)
+		pdfPath := fmt.Sprintf("static/tickets/BOOKING_%s_%s.pdf", timestamp, payload.BookingID)
 		err = pdf.OutputFileAndClose(pdfPath)
 		if err != nil {
 			return err
@@ -56,7 +56,7 @@ func (h *GeneratePdfHandler) HandleGeneratePdf() asynq.HandlerFunc {
 
 		bookingProcessedData := amqp.BookingDataPayload{
 			BookingID:  payload.BookingID,
-			PdfUrl:     pdfPath,
+			PdfUrl:     fmt.Sprintf("http://localhost/%s", pdfPath),
 			SeatStatus: payload.Seat.Status,
 		}
 		err = h.amqpClient.SendBookingProcessedMessage(bookingProcessedData)
