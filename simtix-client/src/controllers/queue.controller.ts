@@ -22,14 +22,16 @@ export class QueueController {
    * @param payload
    * @param context
    */
-  @EventPattern('booking_process')
+  @EventPattern('BOOKING_PROCESSED')
   async consumeMessage(@Payload() payload: any, @Ctx() context: RmqContext) {
     console.log(`Received message: ${JSON.stringify(payload)}`);
 
-    const { id, status, bookingUrl } = payload;
+    const { bookingID, seatStatus, pdfUrl } = payload;
+
+    const status = seatStatus === 'BOOKED' ? 'SUCCESS' : 'FAILED'
 
     try {
-      await this.bookingService.updateStatus(id, status, bookingUrl);
+      await this.bookingService.updateStatus(bookingID, status, pdfUrl);
     } catch (error) {
       console.error(`Error processing message: ${error.message}`);
     }
