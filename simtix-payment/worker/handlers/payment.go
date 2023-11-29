@@ -57,7 +57,6 @@ func (h *MakePaymentHandler) HandleMakePaymentTask() asynq.HandlerFunc {
 		}
 
 		logger.Log.Info("Payment processing successful! 🥳")
-		// to do : post to webhook
 		return err
 	}
 }
