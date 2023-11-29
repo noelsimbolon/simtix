@@ -1,0 +1,162 @@
+{
+	"info": {
+		"_postman_id": "634a6cf7-bce0-4948-a7a5-53cf0e7d2198",
+		"name": "Simtix Payment",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27132732",
+		"_collection_link": "https://gold-shadow-13160.postman.co/workspace/Simtix~5d2c4f57-bcd8-4397-ac54-a52a9e1ed38f/collection/31407032-634a6cf7-bce0-4948-a7a5-53cf0e7d2198?action=share&source=collection_link&creator=27132732"
+	},
+	"item": [
+		{
+			"name": "Create New Invoice",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"bookingID\": \"a41b6dd9-a15a-4d42-aa2b-a7112845e6a1\",\r\n    \"amount\": 100000\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/invoice",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"invoice"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Create New Invoice",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"bookingID\": \"a41b6dd9-a15a-4d42-aa2b-a7112845e6a1\",\r\n    \"amount\": 100000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/invoice",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"invoice"
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/invoice",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"invoice"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Health Check",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/invoice",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"invoice"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Server",
+							"value": "nginx/1.25.3"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 29 Nov 2023 11:19:13 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "21"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"Success\"\n}"
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "localhost/api/payment",
+			"type": "string"
+		}
+	]
+}

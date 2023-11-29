@@ -1,0 +1,538 @@
+{
+	"info": {
+		"_postman_id": "9a0c1a11-0629-427f-bf2f-70f97041c925",
+		"name": "Simtix Ticketing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27132732",
+		"_collection_link": "https://gold-shadow-13160.postman.co/workspace/Simtix~5d2c4f57-bcd8-4397-ac54-a52a9e1ed38f/collection/31406907-9a0c1a11-0629-427f-bf2f-70f97041c925?action=share&source=collection_link&creator=27132732"
+	},
+	"item": [
+		{
+			"name": "Event",
+			"item": [
+				{
+					"name": "Get All Events",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/events",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"events"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get All Events",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:8000/api/events",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"events"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 27 Nov 2023 19:45:47 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "588"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"events\": [\n        {\n            \"ID\": \"d3407173-3984-460e-8429-327b878667ff\",\n            \"createdAt\": \"2023-11-28T02:11:26.911367+07:00\",\n            \"updatedAt\": \"2023-11-28T02:11:26.911367+07:00\",\n            \"deletedAt\": null,\n            \"eventName\": \"Event 1\",\n            \"seats\": null\n        },\n        {\n            \"ID\": \"d1ef8e44-dd8d-4002-9c5a-0520b3fefcfd\",\n            \"createdAt\": \"2023-11-28T02:11:26.911367+07:00\",\n            \"updatedAt\": \"2023-11-28T02:11:26.911367+07:00\",\n            \"deletedAt\": null,\n            \"eventName\": \"Event 2\",\n            \"seats\": null\n        },\n        {\n            \"ID\": \"8ce58cdc-3f20-419f-8b61-c3ecf4aa7975\",\n            \"createdAt\": \"2023-11-28T02:11:26.911367+07:00\",\n            \"updatedAt\": \"2023-11-28T02:11:26.911367+07:00\",\n            \"deletedAt\": null,\n            \"eventName\": \"Event 3\",\n            \"seats\": null\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Event By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/events/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"events",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Event By ID",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:8000/api/events/d3407173-3984-460e-8429-327b878667ff",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"events",
+										"d3407173-3984-460e-8429-327b878667ff"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 27 Nov 2023 19:47:52 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "632"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"ID\": \"d3407173-3984-460e-8429-327b878667ff\",\n    \"createdAt\": \"2023-11-28T02:11:26.911367+07:00\",\n    \"updatedAt\": \"2023-11-28T02:11:26.911367+07:00\",\n    \"deletedAt\": null,\n    \"eventName\": \"Event 1\",\n    \"seats\": [\n        {\n            \"ID\": \"0a526788-724b-4bf6-9521-56b2afa2a584\",\n            \"createdAt\": \"2023-11-28T02:11:26.911367+07:00\",\n            \"updatedAt\": \"2023-11-28T02:11:26.911367+07:00\",\n            \"deletedAt\": null,\n            \"eventID\": \"d3407173-3984-460e-8429-327b878667ff\",\n            \"status\": \"OPEN\"\n        },\n        {\n            \"ID\": \"74fffff4-4f46-46e0-8099-14486373296a\",\n            \"createdAt\": \"2023-11-28T02:11:26.911367+07:00\",\n            \"updatedAt\": \"2023-11-28T02:11:26.911367+07:00\",\n            \"deletedAt\": null,\n            \"eventID\": \"d3407173-3984-460e-8429-327b878667ff\",\n            \"status\": \"OPEN\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Create New Event",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"eventName\": \"dlwlrma tour\",\r\n    \"eventTime\": \"09 Mar 24 08:00 SGT\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/events",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"events"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Create New Event",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"eventName\": \"The Eras Tour Gitu\",\r\n    \"eventTime\": \"09 Mar 24 08:00 SGT\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/events",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"events"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.3"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Nov 2023 10:44:51 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "220"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"3017bb01-2aa9-43fe-a9e8-9a6f7d9f34e9\",\n    \"createdAt\": \"2023-11-29T10:44:51.495847222Z\",\n    \"updatedAt\": \"2023-11-29T10:44:51.495847222Z\",\n    \"deletedAt\": null,\n    \"eventName\": \"The Eras Tour Gitu\",\n    \"eventTime\": \"2024-03-09T08:00:00Z\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Seat",
+			"item": [
+				{
+					"name": "Create New Seat",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"eventID\": \"4f257756-b430-44ad-aadb-2b4be1e383bf\",\r\n    \"seatNumber\": 1,\r\n    \"seatRow\": \"A\",\r\n    \"price\": 100000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/seat",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"seat"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Create New Seat",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"eventID\": \"3017bb01-2aa9-43fe-a9e8-9a6f7d9f34e9\",\r\n    \"seatNumber\": 516254,\r\n    \"seatRow\": \"A\",\r\n    \"price\": 100000\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/seat",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"seat"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.3"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Nov 2023 10:45:46 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "440"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"26432909-473e-4f93-a7c3-07a717b6e322\",\n    \"createdAt\": \"2023-11-29T10:45:46.588408201Z\",\n    \"updatedAt\": \"2023-11-29T10:45:46.588408201Z\",\n    \"deletedAt\": null,\n    \"eventID\": \"3017bb01-2aa9-43fe-a9e8-9a6f7d9f34e9\",\n    \"status\": \"OPEN\",\n    \"seatRow\": \"A\",\n    \"seatNumber\": 516254,\n    \"price\": \"100000\",\n    \"event\": {\n        \"id\": \"\",\n        \"createdAt\": \"0001-01-01T00:00:00Z\",\n        \"updatedAt\": \"0001-01-01T00:00:00Z\",\n        \"deletedAt\": null,\n        \"eventName\": \"\",\n        \"eventTime\": \"0001-01-01T00:00:00Z\"\n    },\n    \"bookingID\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Seat By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/seat/26432909-473e-4f93-a7c3-07a717b6e322",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"seat",
+								"26432909-473e-4f93-a7c3-07a717b6e322"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Seat By ID",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/seat/26432909-473e-4f93-a7c3-07a717b6e322",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"seat",
+										"26432909-473e-4f93-a7c3-07a717b6e322"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.3"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Nov 2023 10:52:42 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "502"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"26432909-473e-4f93-a7c3-07a717b6e322\",\n    \"createdAt\": \"2023-11-29T10:45:46.588408Z\",\n    \"updatedAt\": \"2023-11-29T10:45:46.588408Z\",\n    \"deletedAt\": null,\n    \"eventID\": \"3017bb01-2aa9-43fe-a9e8-9a6f7d9f34e9\",\n    \"status\": \"OPEN\",\n    \"seatRow\": \"A\",\n    \"seatNumber\": 516254,\n    \"price\": \"100000\",\n    \"event\": {\n        \"id\": \"3017bb01-2aa9-43fe-a9e8-9a6f7d9f34e9\",\n        \"createdAt\": \"2023-11-29T10:44:51.495847Z\",\n        \"updatedAt\": \"2023-11-29T10:44:51.495847Z\",\n        \"deletedAt\": null,\n        \"eventName\": \"The Eras Tour Gitu\",\n        \"eventTime\": \"2024-03-09T08:00:00Z\"\n    },\n    \"bookingID\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Seat By Event ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/seat?eventID=3017bb01-2aa9-43fe-a9e8-9a6f7d9f34e9",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"seat"
+							],
+							"query": [
+								{
+									"key": "eventID",
+									"value": "3017bb01-2aa9-43fe-a9e8-9a6f7d9f34e9"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Seat By Event ID",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{base_url}}/seat?eventID=3017bb01-2aa9-43fe-a9e8-9a6f7d9f34e9",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"seat"
+									],
+									"query": [
+										{
+											"key": "eventID",
+											"value": "3017bb01-2aa9-43fe-a9e8-9a6f7d9f34e9"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.3"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Nov 2023 10:46:23 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "436"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": \"26432909-473e-4f93-a7c3-07a717b6e322\",\n        \"createdAt\": \"2023-11-29T10:45:46.588408Z\",\n        \"updatedAt\": \"2023-11-29T10:45:46.588408Z\",\n        \"deletedAt\": null,\n        \"eventID\": \"3017bb01-2aa9-43fe-a9e8-9a6f7d9f34e9\",\n        \"status\": \"OPEN\",\n        \"seatRow\": \"A\",\n        \"seatNumber\": 516254,\n        \"price\": \"100000\",\n        \"event\": {\n            \"id\": \"\",\n            \"createdAt\": \"0001-01-01T00:00:00Z\",\n            \"updatedAt\": \"0001-01-01T00:00:00Z\",\n            \"deletedAt\": null,\n            \"eventName\": \"\",\n            \"eventTime\": \"0001-01-01T00:00:00Z\"\n        },\n        \"bookingID\": null\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Hold Seat",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"bookingID\": \"6fcddffb-53e6-45e5-9fa6-d1bdf8c21500\",\r\n    \"seatID\": \"9216a4e6-a7c6-4496-9d35-276706d8a5e4\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/seat",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"seat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Seat Webhook",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Webhook-Signature",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/seat/webhook",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"seat",
+								"webhook"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Seat By Booking ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/seat?bookingID=d1709671-ba52-46cf-afc1-8876941ba2e0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"seat"
+							],
+							"query": [
+								{
+									"key": "bookingID",
+									"value": "d1709671-ba52-46cf-afc1-8876941ba2e0"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "localhost/api/ticketing",
+			"type": "string"
+		}
+	]
+}
