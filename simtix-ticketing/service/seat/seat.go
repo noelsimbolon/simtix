@@ -175,6 +175,7 @@ func (s *SeatServiceImpl) BookSeat(updateSeatStatusDto dto.BookSeatDto) (
 
 var checkSeatExternallyCnt = 0
 
+// 20% failure rate simulation
 func (s *SeatServiceImpl) checkSeatExternally(seatID string) bool {
 	checkSeatExternallyCnt += 1
 	return checkSeatExternallyCnt%5 != 0
