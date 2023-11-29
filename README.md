@@ -15,6 +15,11 @@ make create-network
 make
 ```
 
+### To seed data
+```bash
+make seed
+```
+
 ### To stop
 ```bash
 make stop-all

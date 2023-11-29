@@ -31,3 +31,6 @@ stop-payment:
 
 stop-nginx:
 	docker-compose down
+
+seed:
+	py seeder.py
