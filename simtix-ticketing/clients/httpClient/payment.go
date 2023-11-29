@@ -52,10 +52,6 @@ func (c *PaymentClient) PostInvoice(payload *PostInvoicePayload) (*PostInvoiceRe
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		var testt interface{}
-		json.Unmarshal(body, testt)
-		log.Printf("%v", testt)
-		log.Print()
 		return nil, fmt.Errorf("unexpected response")
 	}
 	if resp.StatusCode != http.StatusCreated {

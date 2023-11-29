@@ -42,6 +42,7 @@ func (h *GeneratePdfHandler) HandleGeneratePdf() asynq.HandlerFunc {
 
 		pdf.SetFont("Arial", "B", 14)
 		pdf.Cell(40, 10, "BOOKING DETAILS")
+		pdf.Ln(10)
 
 		h.addTicketDetails(pdf, payload)
 
