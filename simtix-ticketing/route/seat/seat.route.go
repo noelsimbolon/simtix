@@ -17,7 +17,7 @@ func NewSeatRoute(handler seat.SeatHandler) *SeatRoute {
 
 func (r SeatRoute) Setup(rg *gin.RouterGroup) {
 	seatRoute := rg.Group("/seat")
-	seatRoute.GET("/", r.seatHandler.GetSeatsByEvent)
+	seatRoute.GET("/", r.seatHandler.GetSeats)
 	seatRoute.GET("/:seatID", r.seatHandler.GetSeatByID)
 	seatRoute.POST("/", r.seatHandler.PostSeat)
 	seatRoute.PATCH("/", r.seatHandler.PatchSeatForBooking)

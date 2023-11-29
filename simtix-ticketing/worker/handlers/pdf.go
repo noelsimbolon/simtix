@@ -10,7 +10,6 @@ import (
 	"github.com/skip2/go-qrcode"
 	"log"
 	"simtix-ticketing/clients/amqp"
-	"simtix-ticketing/model"
 	"simtix-ticketing/worker/tasks"
 	"time"
 )
@@ -36,7 +35,7 @@ func (h *GeneratePdfHandler) HandleGeneratePdf() asynq.HandlerFunc {
 
 		var pdf *gofpdf.Fpdf
 
-		if payload.Seat.Status == model.SEATSTATUS_BOOKED {
+		if payload.ErrorReason == nil {
 			pdf, err = h.generateSuccessfulPdf(payload)
 			if err != nil {
 				return err
@@ -57,7 +56,7 @@ func (h *GeneratePdfHandler) HandleGeneratePdf() asynq.HandlerFunc {
 
 		bookingProcessedData := amqp.BookingDataPayload{
 			BookingID:  payload.BookingID,
-			PdfUrl:     pdfPath,
+			PdfUrl:     fmt.Sprintf("http://localhost/%s", pdfPath),
 			SeatStatus: payload.Seat.Status,
 		}
 		err = h.amqpClient.SendBookingProcessedMessage(bookingProcessedData)
@@ -140,7 +139,7 @@ func (h *GeneratePdfHandler) generateFailedPdf(payload *tasks.GeneratePdfPayload
 	// Add the specific failure message
 	pdf.Ln(10)
 	pdf.SetFont("Arial", "", 12)
-	pdf.Cell(40, 10, "Booking failed due to error in processing payment")
+	pdf.Cell(40, 10, fmt.Sprintf("Booking failed due to %s", *payload.ErrorReason))
 
 	return pdf, nil
 }

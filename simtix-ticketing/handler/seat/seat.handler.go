@@ -15,7 +15,7 @@ import (
 )
 
 type SeatHandler interface {
-	GetSeatsByEvent(c *gin.Context)
+	GetSeats(c *gin.Context)
 	GetSeatByID(c *gin.Context)
 	PostSeat(c *gin.Context)
 	SeatWebhook(c *gin.Context)
@@ -34,13 +34,17 @@ func NewSeatHandler(service seat.SeatService, config *config.Config) *SeatHandle
 	}
 }
 
-func (h *SeatHandlerImpl) GetSeatsByEvent(c *gin.Context) {
+func (h *SeatHandlerImpl) GetSeats(c *gin.Context) {
 	eventID := c.Query("eventID")
-	if eventID == "" {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Event ID parameter is required"})
+	bookingID := c.Query("bookingID")
+	if eventID == "" && bookingID == "" {
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			gin.H{"error": "Query is only allowed by eventID and/or bookingID"},
+		)
 		return
 	}
-	seats, err := h.service.GetSeatsByEventID(eventID)
+	seats, err := h.service.GetSeats(eventID, bookingID)
 	if err != nil {
 		c.AbortWithStatusJSON(err.StatusCode, gin.H{"error": err.Err.Error()})
 		return
@@ -104,13 +108,11 @@ func (h *SeatHandlerImpl) SeatWebhook(c *gin.Context) {
 	log.Print(signature)
 	body, err := c.GetRawData()
 	if err != nil {
-		log.Print(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
 		return
 	}
 
 	if err := h.checkWebhookSignature(signature, body); err != nil {
-		log.Print(err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid webhook signature"})
 		return
 	}
@@ -118,12 +120,9 @@ func (h *SeatHandlerImpl) SeatWebhook(c *gin.Context) {
 	var payload dto.UpdateSeatStatusDto
 	err = json.Unmarshal(body, &payload)
 	if err != nil {
-		log.Print(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	log.Print(payload)
-	log.Print(h.webhookSecret)
 	_, custErr := h.service.UpdateSeatStatus(payload)
 	if custErr != nil {
 		c.JSON(custErr.StatusCode, gin.H{"error": custErr.Err.Error()})
